@@ -7,7 +7,6 @@
 
 import os
 import glob
-from pathlib import Path
 import cv2
 import numpy as np
 
@@ -19,7 +18,6 @@ def collect_data(train_data_path, test_data_path):
     
     test_data = glob.glob(os.path.join(test_data_path, "**/*.png"))
     test_labels = [i.split(os.sep)[-2] for i in test_data]
-    
 
     return {"train":{"image_paths": train_data, "labels": train_labels}, "test":{"image_paths": test_data, "labels": test_labels}}
 
