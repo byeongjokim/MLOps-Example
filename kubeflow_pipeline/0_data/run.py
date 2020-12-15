@@ -1,3 +1,5 @@
+# 0_data
+
 # do only processing data
 # 1. collect data
 # 2. preprocess data
@@ -27,7 +29,7 @@ def preprocess_data(data, train_data_file, test_data_file, **kwargs):
 
     def load_preprocess_image(image_path, **kwargs):
         image = cv2.imread(image_path)
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         image = cv2.resize(image, (kwargs["image_width"], kwargs["image_height"]))
         return image
 
@@ -54,18 +56,21 @@ def preprocess_data(data, train_data_file, test_data_file, **kwargs):
     iter_data(data["train"], train_data_file, **kwargs)
     iter_data(data["test"], test_data_file, **kwargs)
 
-def validation_data(train_data_file, test_data_file):
+def validation_data(train_data_file, test_data_file, **kwargs):
     # validate data
     # check data path, shape, type
 
-    def validate(npy_image, npy_label):
+    def validate(npy_image, npy_label, **kwargs):
         npy_image_shape = np.load(npy_image).shape
         npy_label_shape = np.load(npy_label).shape
         
         assert npy_image[-7:] == npy_label[-7:]
+        assert len(npy_image_shape) == 3
         assert npy_image_shape[0] == npy_label_shape[0]
+        assert npy_image_shape[1] == kwargs["image_width"]
+        assert npy_image_shape[2] == kwargs["image_height"]
     
-    def iter_npy(data_file):
+    def iter_npy(data_file, **kwargs):
         npy_images = glob.glob(data_file + "*images*.npy")
         npy_labels = glob.glob(data_file + "*labels*.npy")
 
@@ -73,10 +78,10 @@ def validation_data(train_data_file, test_data_file):
         npy_labels.sort()
 
         for npy_image, npy_label in zip(npy_images, npy_labels):
-            validate(npy_image, npy_label)
+            validate(npy_image, npy_label, **kwargs)
 
-    iter_npy(train_data_file)
-    iter_npy(test_data_file)
+    iter_npy(train_data_file, **kwargs)
+    iter_npy(test_data_file, **kwargs)
 
 if __name__ == "__main__":
     train_data_path = os.getenv('TRAIN_DATA', "../../data/mnist/train")
@@ -86,7 +91,8 @@ if __name__ == "__main__":
     test_data_file = os.getenv("TEST_DATA_FILE", "test_mnist")
 
     image_width = os.getenv("IMAGE_WIDTH", 28)
-    image_height = os.getenv("IMAGE_WIDTH", 28)
+    image_height = os.getenv("IMAGE_HEIGHT", 28)
+    image_channel = os.getenv("IMAGE_CAHNNEL", 1)
 
     print("Collecting data...")
     data = collect_data(
@@ -100,11 +106,15 @@ if __name__ == "__main__":
         train_data_file=os.path.join(train_data_path, train_data_file),
         test_data_file=os.path.join(test_data_path, test_data_file),
         image_width=image_width,
-        image_height=image_height
+        image_height=image_height,
+        image_channel=image_channel
     )
 
     print("Validating data...")
     validation_data(
         train_data_file=os.path.join(train_data_path, train_data_file),
-        test_data_file=os.path.join(test_data_path, test_data_file)
+        test_data_file=os.path.join(test_data_path, test_data_file),
+        image_width=image_width,
+        image_height=image_height,
+        image_channel=image_channel
     )
