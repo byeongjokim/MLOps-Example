@@ -16,10 +16,10 @@ def collect_data(train_data_path, test_data_path):
     # collect data
 
     train_data = glob.glob(os.path.join(train_data_path, "**/*.png"))
-    train_labels = [i.split(os.sep)[-2] for i in train_data]
+    train_labels = [int(i.split(os.sep)[-2]) for i in train_data]
     
     test_data = glob.glob(os.path.join(test_data_path, "**/*.png"))
-    test_labels = [i.split(os.sep)[-2] for i in test_data]
+    test_labels = [int(i.split(os.sep)[-2]) for i in test_data]
 
     return {"train":{"image_paths": train_data, "labels": train_labels}, "test":{"image_paths": test_data, "labels": test_labels}}
 
@@ -34,14 +34,15 @@ def preprocess_data(data, train_data_file, test_data_file, **kwargs):
         return image
 
     def save_npy(filename, npy_num, image_paths, labels, **kwargs):
-        images = np.asarray([load_preprocess_image(image_path, **kwargs) for image_path in image_paths])
+        images = np.asarray([load_preprocess_image(image_path, **kwargs) for image_path in image_paths], dtype=kwargs["image_type"])
+        labels = np.asarray(labels, dtype=kwargs["label_type"])
         np.save(filename + "_images_" + str(npy_num).zfill(3) + ".npy", images)
         np.save(filename + "_labels_" + str(npy_num).zfill(3) + ".npy", labels)
         
         del images
         del labels
 
-    def iter_data(data, filename, interval=1000, **kwargs):
+    def iter_data(data, filename, interval=5000, **kwargs):
         npy_num = 0
         for i in range(0, len(data["image_paths"]), interval):
             save_npy(
@@ -61,14 +62,22 @@ def validation_data(train_data_file, test_data_file, **kwargs):
     # check data path, shape, type
 
     def validate(npy_image, npy_label, **kwargs):
-        npy_image_shape = np.load(npy_image).shape
-        npy_label_shape = np.load(npy_label).shape
+        images = np.load(npy_image)
+        labels = np.load(npy_label)
+        
+        npy_image_shape = images.shape
+        npy_label_shape = labels.shape
         
         assert npy_image[-7:] == npy_label[-7:]
         assert len(npy_image_shape) == 3
         assert npy_image_shape[0] == npy_label_shape[0]
         assert npy_image_shape[1] == kwargs["image_width"]
         assert npy_image_shape[2] == kwargs["image_height"]
+        assert images.dtype == kwargs["image_type"]
+        assert labels.dtype == kwargs["label_type"]
+
+        del images
+        del labels
     
     def iter_npy(data_file, **kwargs):
         npy_images = glob.glob(data_file + "*images*.npy")
@@ -107,7 +116,9 @@ if __name__ == "__main__":
         test_data_file=os.path.join(test_data_path, test_data_file),
         image_width=image_width,
         image_height=image_height,
-        image_channel=image_channel
+        image_channel=image_channel,
+        image_type=np.float32,
+        label_type=np.int64
     )
 
     print("Validating data...")
@@ -116,5 +127,7 @@ if __name__ == "__main__":
         test_data_file=os.path.join(test_data_path, test_data_file),
         image_width=image_width,
         image_height=image_height,
-        image_channel=image_channel
+        image_channel=image_channel,
+        image_type=np.float32,
+        label_type=np.int64
     )

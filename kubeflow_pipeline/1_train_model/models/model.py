@@ -34,16 +34,9 @@ class Embedding(nn.Module):
 
         x = torch.flatten(x, 1)
         x = self.fc1(x)
-        print(x.shape)
         x = self.bn3(x)
-        print(x.shape)
         x = self.relu3(x)
 
         x = self.fc2(x)
 
         return x
-
-a = Embedding()
-img = np.ones([2,1,28,28])
-
-a(torch.Tensor(img))

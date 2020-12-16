@@ -1,8 +1,0 @@
-input_shape
-d_embedding
-scale_size
-optimizer
-lr
-weight_decay
-n_gpus
-logfile

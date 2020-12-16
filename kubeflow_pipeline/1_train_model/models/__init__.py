@@ -1,2 +1,2 @@
-from model import Embedding
-from metrics import ArcMarginProduct
+from models.model import Embedding
+from models.metrics import ArcMarginProduct
