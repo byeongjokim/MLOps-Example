@@ -12,7 +12,7 @@ import glob
 import cv2
 import numpy as np
 
-def collect_data(train_data_path, test_data_path):
+def collect_data(train_data_path, test_data_path, faiss_train_data_path, faiss_test_data_path):
     # collect data
 
     train_data = glob.glob(os.path.join(train_data_path, "**/*.png"))
@@ -21,11 +21,21 @@ def collect_data(train_data_path, test_data_path):
     test_data = glob.glob(os.path.join(test_data_path, "**/*.png"))
     test_labels = [int(i.split(os.sep)[-2]) for i in test_data]
 
-    return {"train":{"image_paths": train_data, "labels": train_labels}, "test":{"image_paths": test_data, "labels": test_labels}}
+    faiss_train_data = glob.glob(os.path.join(faiss_train_data_path, "**/*.png"))
+    faiss_train_labels = [int(i.split(os.sep)[-2]) for i in faiss_train_data]
 
-def preprocess_data(data, train_data_file, test_data_file, **kwargs):
+    faiss_test_data = glob.glob(os.path.join(faiss_test_data_path, "**/*.png"))
+    faiss_test_labels = [int(i.split(os.sep)[-2]) for i in faiss_test_data]
+
+    return {"train":{"image_paths": train_data, "labels": train_labels},
+            "test":{"image_paths": test_data, "labels": test_labels},
+            "faiss_train":{"image_paths": faiss_train_data, "labels": faiss_train_labels},
+            "faiss_test":{"image_paths": faiss_test_data, "labels": faiss_test_labels}
+    }
+
+def preprocess_data(data, train_data_file, test_data_file, faiss_train_data_file, faiss_test_data_file, interval, **kwargs):
     # preprocess data
-    # save data to npy for training/testing
+    # save data to npy for training/testing/faiss training
 
     def load_preprocess_image(image_path, **kwargs):
         image = cv2.imread(image_path)
@@ -42,7 +52,7 @@ def preprocess_data(data, train_data_file, test_data_file, **kwargs):
         del images
         del labels
 
-    def iter_data(data, filename, interval=5000, **kwargs):
+    def iter_data(data, filename, interval, **kwargs):
         npy_num = 0
         for i in range(0, len(data["image_paths"]), interval):
             save_npy(
@@ -54,10 +64,12 @@ def preprocess_data(data, train_data_file, test_data_file, **kwargs):
             )
             npy_num = npy_num + 1
         
-    iter_data(data["train"], train_data_file, **kwargs)
-    iter_data(data["test"], test_data_file, **kwargs)
+    iter_data(data["train"], train_data_file, interval, **kwargs)
+    iter_data(data["test"], test_data_file, interval, **kwargs)
+    iter_data(data["faiss_train"], faiss_train_data_file, interval, **kwargs)
+    iter_data(data["faiss_test"], faiss_test_data_file, interval, **kwargs)
 
-def validation_data(train_data_file, test_data_file, **kwargs):
+def validation_data(train_data_file, test_data_file, faiss_train_data_file, faiss_test_data_file, **kwargs):
     # validate data
     # check data path, shape, type
 
@@ -91,22 +103,31 @@ def validation_data(train_data_file, test_data_file, **kwargs):
 
     iter_npy(train_data_file, **kwargs)
     iter_npy(test_data_file, **kwargs)
+    iter_npy(faiss_train_data_file, **kwargs)
+    iter_npy(faiss_test_data_file, **kwargs)
 
 if __name__ == "__main__":
     train_data_path = os.getenv('TRAIN_DATA', "../../data/mnist/train")
     test_data_path = os.getenv('TEST_DATA', "../../data/mnist/test")
+    faiss_train_data_path = os.getenv('FAISS_TRAIN_DATA', "../../data/faiss/train")
+    faiss_test_data_path = os.getenv('FAISS_TEST_DATA', "../../data/faiss/test")
 
     train_data_file = os.getenv("TRAIN_DATA_FILE", "train_mnist")
     test_data_file = os.getenv("TEST_DATA_FILE", "test_mnist")
+    faiss_train_data_file = os.getenv('FAISS_TRAIN_DATA_FILE', "faiss_train")
+    faiss_test_data_file = os.getenv('FAISS_TEST_DATA_FILE', "faiss_test")
 
     image_width = os.getenv("IMAGE_WIDTH", 28)
     image_height = os.getenv("IMAGE_HEIGHT", 28)
     image_channel = os.getenv("IMAGE_CAHNNEL", 1)
+    npy_interval = os.getenv("NPY_INTERVAL", 5000)
 
     print("Collecting data...")
     data = collect_data(
         train_data_path=train_data_path,
-        test_data_path=test_data_path
+        test_data_path=test_data_path,
+        faiss_train_data_path=faiss_train_data_path,
+        faiss_test_data_path=faiss_test_data_path
     )
 
     print("Preprocessing data...")
@@ -114,6 +135,9 @@ if __name__ == "__main__":
         data=data, 
         train_data_file=os.path.join(train_data_path, train_data_file),
         test_data_file=os.path.join(test_data_path, test_data_file),
+        faiss_train_data_file=os.path.join(faiss_train_data_path, faiss_train_data_file),
+        faiss_test_data_file=os.path.join(faiss_test_data_path, faiss_test_data_file),
+        interval=npy_interval,
         image_width=image_width,
         image_height=image_height,
         image_channel=image_channel,
@@ -125,6 +149,8 @@ if __name__ == "__main__":
     validation_data(
         train_data_file=os.path.join(train_data_path, train_data_file),
         test_data_file=os.path.join(test_data_path, test_data_file),
+        faiss_train_data_file=os.path.join(faiss_train_data_path, faiss_train_data_file),
+        faiss_test_data_file=os.path.join(faiss_test_data_path, faiss_test_data_file),
         image_width=image_width,
         image_height=image_height,
         image_channel=image_channel,

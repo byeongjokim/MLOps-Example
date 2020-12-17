@@ -24,7 +24,7 @@ import numpy as np
 from data import MnistDataset
 from models import *
 
-def train(args):
+def train_embedding(args):
     logging.basicConfig(filename=args.logfile, level=logging.INFO, format='[+] %(asctime)s %(message)s', datefmt='%Y%m%d %I:%M:%S %p')
 
     train_dataset = MnistDataset(args.npy_path, num_classes=args.class_nums)
@@ -32,6 +32,15 @@ def train(args):
         train_dataset,
         batch_size=args.batch_size,
         shuffle=True,
+        num_workers=args.num_workers,
+        drop_last=False
+    )
+
+    eval_dataset = MnistDataset(args.npy_path_eval, num_classes=args.class_nums, transforms=False)
+    eval_dataloader = torch.utils.data.DataLoader(
+        eval_dataset,
+        batch_size=args.batch_size,
+        shuffle=False,
         num_workers=args.num_workers,
         drop_last=False
     )
@@ -136,15 +145,53 @@ def train(args):
                     os.path.join(args.save_dir, "iter_{}_metric.ckpt".format(str(it).zfill(5)))
                 )
             
+            if it % args.eval_iter == 0:
+                model.eval()
+                metric.eval()
+                correct = 0
+                with torch.no_grad():
+                    for data in eval_dataloader:
+                        images, labels = data[0].to(device), data[1].to(device)
+                        
+                        embeddings = model(images)
+                        output = metric(embeddings, labels)
+
+                        _, predict = torch.max(output.data, 1)
+                        correct = correct + (np.array(predict.cpu()) == np.array(labels.data.cpu())).sum()
+                    acc = correct / len(eval_dataloader.dataset)
+                    logging.info('{} iterations Eval Accuracy :{}'.format(str(it).zfill(5), str(acc)))
+                
+                model.train()
+                metric.train()
+
             it = it + 1
-        return 1
 
+    with torch.no_grad():
+        model.eval()
+        metric.eval()
 
+        if args.n_gpus > 1:
+            model_ = torch.jit.script(model.module)
+            metric_ = torch.jit.script(metric.module)
+        else:
+            model_ = torch.jit.script(model)
+            metric_ = torch.jit.script(metric)
+
+        torch.jit.save(
+            model_,
+            os.path.join(args.save_dir, args.save_model)
+        )
+        
+        torch.jit.save(
+            metric_,
+            os.path.join(args.save_dir, args.save_metric)
+        )
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='PyTorch for deep face recognition')
     
     parser.add_argument('--npy_path', type=str, default="../../data/mnist/train")
+    parser.add_argument('--npy_path_eval', type=str, default="../../data/mnist/test")
     parser.add_argument('--input_width', type=int, default=28)
     parser.add_argument('--input_height', type=int, default=28)
     parser.add_argument('--d_embedding', type=int, default=128)
@@ -158,17 +205,21 @@ if __name__ == "__main__":
     parser.add_argument('--n_gpus', type=int, default=1)
     parser.add_argument('--num_workers', type=int, default=2)
 
-    parser.add_argument('--save_dir', type=str, default='./')    
+    parser.add_argument('--save_dir', type=str, default='../../model/')
+    parser.add_argument('--save_model', type=str, default='model.pt')
+    parser.add_argument('--save_metric', type=str, default='metric.pt')
+
     parser.add_argument('--resume', type=int, default=False)
     parser.add_argument('--model_path', type=str, default='.')
     parser.add_argument('--metric_path', type=str, default='.')
     parser.add_argument('--logfile', type=str, default='./log.log')
 
-    parser.add_argument('--epoch', type=int, default=100)
+    parser.add_argument('--epoch', type=int, default=2)
     parser.add_argument('--batch_size', type=int, default=16)
-    parser.add_argument('--log_iter', type=int, default=1000)
-    parser.add_argument('--save_iter', type=int, default=1000)
+    parser.add_argument('--log_iter', type=int, default=500)
+    parser.add_argument('--save_iter', type=int, default=500)
+    parser.add_argument('--eval_iter', type=int, default=500)
 
     args = parser.parse_args()
 
-    train(args)
+    train_embedding(args)
