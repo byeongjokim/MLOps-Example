@@ -24,7 +24,7 @@ import numpy as np
 from data import MnistDataset
 from models import *
 
-def train_embedding(args):
+def main(args):
     logging.basicConfig(filename=args.logfile, level=logging.INFO, format='[+] %(asctime)s %(message)s', datefmt='%Y%m%d %I:%M:%S %p')
 
     train_dataset = MnistDataset(args.npy_path, num_classes=args.class_nums)
@@ -186,6 +186,9 @@ def train_embedding(args):
             metric_,
             os.path.join(args.save_dir, args.save_metric)
         )
+        
+    del train_dataset
+    del eval_dataset
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='PyTorch for deep face recognition')
@@ -222,4 +225,4 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    train_embedding(args)
+    main(args)
