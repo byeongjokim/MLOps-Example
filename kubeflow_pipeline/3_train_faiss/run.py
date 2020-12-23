@@ -1,10 +1,8 @@
-# 2_train_faiss
+# 3_train_faiss
 
 # training faiss with preprocessed data
 # 1. build face index
 # 2. fit faiss
-# parameters for katlib
-# - args.k(k of kNN)
 
 import os
 import logging
@@ -12,14 +10,7 @@ import argparse
 import ujson
 
 import torch
-
-from data import MnistDataset
-
-def fit(embeddings):
-    face_index = faiss.IndexFlatL2(embeddings.shape[1])
-    face_index.add(embeddings)
-    
-    return face_index
+import faiss
 
 def save_model(face_index, labels, model_file_name, label_file_name):
     faiss.write_index(face_index, model_file_name)
@@ -27,29 +18,53 @@ def save_model(face_index, labels, model_file_name, label_file_name):
     with open(label_file_name, "w") as l_f:
         ujson.dump(labels, l_f)
 
-def load_npy(npy_path):
+def parse_npy_files(npy_path):
     npy_embeddings_files = glob.glob(os.path.join(npy_path, "*embeddings*.npy"))
     npy_labels_files = glob.glob(os.path.join(npy_path, "*labels*.npy"))
 
     npy_embeddings_files.sort()
     npy_labels_files.sort()
 
-    return npy_embeddings, npy_labels
+    return npy_embeddings_files, npy_labels_files
 
-def train_faiss(args):
-    npy_embeddings, npy_labels = load_npy(args.npy_path)
+def main(args):
+    npy_embeddings_files, npy_labels_files = parse_npy_files(args.npy_path)
 
     face_index = faiss.IndexFlatL2(args.d_embedding)
 
-    i = 0
-    labels = {}
-    while True:
-        np.load()
-        face_index.add()
+    total_labels = []
+    for npy_embeddings_file, npy_labels_file in zip(npy_embeddings_files, npy_labels_files):
+        embeddings = np.load(npy_embeddings_file)
+        face_index.add(embeddings)
 
+        labels = np.load(npy_labels_file).tolist()
+        total_labels += labels
 
-    save_model(face_index, labels, FAISS_MODEL_FILE, LABEL_FILE)
+        del embeddings
 
+    npy_embeddings_files, npy_labels_files = parse_npy_files(args.npy_path_eval)
+
+    correct = 0
+    l = 0
+    for npy_embeddings_file, npy_labels_file in zip(npy_embeddings_files, npy_labels_files):
+        embeddings = np.load(npy_embeddings_file)
+        
+        dists, inds = face_index.search(embeddings, 1)
+
+        labels = np.load(npy_labels_file)
+
+        predicts = inds[:,0]
+        correct += (predicts == labels).sum()
+        l += labels.size(0)
+
+    acc = correct/l
+
+    save_model(
+        face_index,
+        total_labels,
+        os.path.join(args.save_dir, args.faiss_model),
+        os.path.join(args.save_dir, args.faiss_label)
+    )
 
 
 if __name__ == "__main__":
@@ -57,16 +72,17 @@ if __name__ == "__main__":
     
     parser.add_argument('--npy_path', type=str, default="../../data/faiss/train")
     parser.add_argument('--npy_path_eval', type=str, default="../../data/faiss/test")
+
     parser.add_argument('--d_embedding', type=int, default=128)
     parser.add_argument('--class_nums', type=int, default=10)
 
     parser.add_argument('--save_dir', type=str, default='../../model/')    
-    parser.add_argument('--faiss_index_path', type=str, default='faiss_index.bin')
-    parser.add_argument('--label_path', type=str, default='label.json')
+    parser.add_argument('--faiss_model', type=str, default='faiss_index.bin')
+    parser.add_argument('--faiss_label', type=str, default='label.json')
 
     parser.add_argument('--logfile', type=str, default='./log.log')
 
 
     args = parser.parse_args()
 
-    train_faiss(args)
+    main(args)
