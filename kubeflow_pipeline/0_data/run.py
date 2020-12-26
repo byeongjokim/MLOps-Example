@@ -107,13 +107,13 @@ def validation_data(train_data_file, test_data_file, faiss_train_data_file, fais
     iter_npy(faiss_test_data_file, **kwargs)
 
 if __name__ == "__main__":
-    train_data_path = os.getenv('TRAIN_DATA', "../../data/mnist/train")
-    test_data_path = os.getenv('TEST_DATA', "../../data/mnist/test")
-    faiss_train_data_path = os.getenv('FAISS_TRAIN_DATA', "../../data/faiss/train")
-    faiss_test_data_path = os.getenv('FAISS_TEST_DATA', "../../data/faiss/test")
-
+    train_data_path = os.getenv('TRAIN_DATA', "/data/mnist/train")
+    test_data_path = os.getenv('TEST_DATA', "/data/mnist/test")
     train_data_file = os.getenv("TRAIN_DATA_FILE", "train_mnist")
     test_data_file = os.getenv("TEST_DATA_FILE", "test_mnist")
+
+    faiss_train_data_path = os.getenv('FAISS_TRAIN_DATA', "/data/faiss/train")
+    faiss_test_data_path = os.getenv('FAISS_TEST_DATA', "/data/faiss/test")
     faiss_train_data_file = os.getenv('FAISS_TRAIN_DATA_FILE', "faiss_train")
     faiss_test_data_file = os.getenv('FAISS_TEST_DATA_FILE', "faiss_test")
 

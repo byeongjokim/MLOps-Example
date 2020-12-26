@@ -35,15 +35,18 @@ def main(args):
     total_labels = []
     for npy_embeddings_file, npy_labels_file in zip(npy_embeddings_files, npy_labels_files):
         embeddings = np.load(npy_embeddings_file)
+
         face_index.add(embeddings)
 
         labels = np.load(npy_labels_file).tolist()
+
         total_labels += labels
 
         del embeddings
 
-    npy_embeddings_files, npy_labels_files = parse_npy_files(args.npy_path_eval)
 
+    npy_embeddings_files, npy_labels_files = parse_npy_files(args.npy_path_eval)
+    total_labels = np.asarray(total_labels)
     correct = 0
     l = 0
     for npy_embeddings_file, npy_labels_file in zip(npy_embeddings_files, npy_labels_files):
@@ -53,7 +56,8 @@ def main(args):
 
         labels = np.load(npy_labels_file)
 
-        predicts = inds[:,0]
+        predicts = total_labels[inds[:,0]]
+        
         correct += (predicts == labels).sum()
         l += labels.size(0)
 
@@ -61,7 +65,7 @@ def main(args):
 
     save_model(
         face_index,
-        total_labels,
+        total_labels.tolist(),
         os.path.join(args.save_dir, args.faiss_model),
         os.path.join(args.save_dir, args.faiss_label)
     )
