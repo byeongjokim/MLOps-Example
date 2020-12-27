@@ -10,9 +10,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: install kfp
-        run: pip3 install kfp
-
       - name: Check out
         uses: actions/checkout@v2
       
@@ -29,6 +26,15 @@ jobs:
           docker build kubeflow_pipeline/1_validate_data -t byeongjokim/mnist-val-data
           docker push byeongjokim/mnist-val-data
 
-      - name: Run a one-line script
-        run: python3 pipeline.py
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.6.12'
+      
+      - uses: BSFishy/pip-action@v1
+        with:
+          packages: |
+            kfp==1.1.2
+
+      - name: run pipeline to kubeflow
+        run: python pipeline.py
 
