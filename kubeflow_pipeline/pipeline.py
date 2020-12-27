@@ -21,5 +21,5 @@ def mnist_pipeline():
     data_1.after(data_0)
 
 if __name__=="__main__":
-    client = kfp.Client()
-    client.create_run_from_pipeline_func(pipeline_func=soojin_pipeline, arguments={})
+    client = kfp.Client(host="http://220.116.228.93:8080/pipeline", namespace="kbj")
+    client.create_run_from_pipeline_func(pipeline_func=mnist_pipeline, arguments={})

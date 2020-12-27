@@ -10,6 +10,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: install kfp
+        run: pip3 install kfp
+
       - name: Check out
         uses: actions/checkout@v2
       
@@ -27,9 +30,5 @@ jobs:
           docker push byeongjokim/mnist-val-data
 
       - name: Run a one-line script
-        run: echo Hello, world!
+        run: python3 pipeline.py
 
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
