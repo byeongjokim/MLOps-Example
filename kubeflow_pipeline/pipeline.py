@@ -22,4 +22,4 @@ def mnist_pipeline():
 
 if __name__=="__main__":
     client = kfp.Client(host="http://220.116.228.93:8080/pipeline", namespace="kbj")
-    client.create_run_from_pipeline_func(pipeline_func=mnist_pipeline, arguments={})
+    client.create_run_from_pipeline_func(pipeline_func=mnist_pipeline, arguments={})   
