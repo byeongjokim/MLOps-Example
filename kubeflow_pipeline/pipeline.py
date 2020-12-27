@@ -8,21 +8,18 @@ from kfp import dsl
 )
 
 def mnist_pipeline():
-    data = dsl.ContainerOp(
-
+    data_0 = dsl.ContainerOp(
+        name="load & preprocess data pipeline",
+        image="byeongjokim/mnist-pre-data:latest",
     )
-    train_model = dsl.ContainerOp(
 
+    data_1 = dsl.ContainerOp(
+        name="validate data pipeline",
+        image="byeongjokim/mnist-val-data:latest",
     )
-    embedding = dsl.ContainerOp(
 
-    )
-    train_faiss = dsl.ContainerOp(
+    data_1.after(data_0)
 
-    )
-    validate = dsl.ContainerOp(
-
-    )
-    deploy = dsl.ContainerOp(
-
-    )
+if __name__=="__main__":
+    client = kfp.Client()
+    client.create_run_from_pipeline_func(pipeline_func=soojin_pipeline, arguments={})
