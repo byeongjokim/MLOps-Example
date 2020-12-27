@@ -12,6 +12,19 @@ jobs:
     steps:
       - name: Check out
         uses: actions/checkout@v2
+      
+      - name: Docker Login
+        uses: docker/login-action@v1.8.0
+        with:
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Build Images
+        run: |
+          docker build 0_data -t byeongjokim/mnist-pre-data
+          docker push byeongjokim/mnist-pre-data
+          docker build 1_validate_data -t byeongjokim/mnist-val-data
+          docker push byeongjokim/mnist-val-data
 
       - name: Run a one-line script
         run: echo Hello, world!
