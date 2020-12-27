@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
+    steps:          
       - name: Check out
         uses: actions/checkout@v2
       
@@ -38,4 +38,12 @@ jobs:
 
       - name: run pipeline to kubeflow
         run: python kubeflow_pipeline/pipeline.py
+      
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: mnist-project
+          SLACK_MESSAGE: 'Upload & Run pipeline :rocket:'
+          SLACK_USERNAME: Github
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
 
