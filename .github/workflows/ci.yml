@@ -21,9 +21,9 @@ jobs:
 
       - name: Build Images
         run: |
-          docker build 0_data -t byeongjokim/mnist-pre-data
+          docker build kubeflow_pipeline/0_data -t byeongjokim/mnist-pre-data
           docker push byeongjokim/mnist-pre-data
-          docker build 1_validate_data -t byeongjokim/mnist-val-data
+          docker build kubeflow_pipeline/1_validate_data -t byeongjokim/mnist-val-data
           docker push byeongjokim/mnist-val-data
 
       - name: Run a one-line script
