@@ -14,7 +14,7 @@
 import os
 import logging
 import argparse
-
+print(os.listdir("./"))
 import torch
 from torch.nn import DataParallel
 from torch.optim import lr_scheduler
@@ -191,7 +191,6 @@ def main(args):
     del eval_dataset
 
 if __name__ == "__main__":
-    print(os.listdir("./"))
     parser = argparse.ArgumentParser(description='PyTorch for deep face recognition')
     
     parser.add_argument('--npy_path', type=str, default="/data/mnist/train")
