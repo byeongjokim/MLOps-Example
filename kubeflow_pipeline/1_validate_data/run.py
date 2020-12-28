@@ -66,6 +66,8 @@ if __name__ == "__main__":
     parser.add_argument('--image_channel', type=int, default=1)
     parser.add_argument('--npy_interval', type=int, default=5000)
 
+    args = parser.parse_args()
+    
     print("Validating data...")
     validation_data(
         train_data_file=os.path.join(args.train_data_path, args.train_data_file),
