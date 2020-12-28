@@ -14,14 +14,14 @@
 import os
 import logging
 import argparse
-print(os.listdir("./"))
+
 import torch
 from torch.nn import DataParallel
 from torch.optim import lr_scheduler
 
 import numpy as np
 
-from data import MnistDataset
+from dataset import MnistDataset
 from models import *
 
 def main(args):
