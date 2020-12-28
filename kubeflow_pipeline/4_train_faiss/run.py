@@ -8,6 +8,7 @@ import os
 import logging
 import argparse
 import ujson
+import glob
 
 import numpy as np
 import faiss
