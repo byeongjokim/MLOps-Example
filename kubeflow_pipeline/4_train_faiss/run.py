@@ -9,7 +9,7 @@ import logging
 import argparse
 import ujson
 
-import torch
+import numpy as np
 import faiss
 
 def save_model(face_index, labels, model_file_name, label_file_name):
@@ -28,8 +28,9 @@ def parse_npy_files(npy_path):
     return npy_embeddings_files, npy_labels_files
 
 def main(args):
+    print("train faiss")
     npy_embeddings_files, npy_labels_files = parse_npy_files(args.npy_path)
-
+    
     face_index = faiss.IndexFlatL2(args.d_embedding)
 
     total_labels = []
@@ -44,9 +45,10 @@ def main(args):
 
         del embeddings
 
-
+    print("evaluate faiss")
     npy_embeddings_files, npy_labels_files = parse_npy_files(args.npy_path_eval)
     total_labels = np.asarray(total_labels)
+    
     correct = 0
     l = 0
     for npy_embeddings_file, npy_labels_file in zip(npy_embeddings_files, npy_labels_files):
@@ -62,6 +64,7 @@ def main(args):
         l += labels.size(0)
 
     acc = correct/l
+    print("Accuracy: " + str(acc))
 
     save_model(
         face_index,
@@ -69,23 +72,23 @@ def main(args):
         os.path.join(args.save_dir, args.faiss_model),
         os.path.join(args.save_dir, args.faiss_label)
     )
+    print("Saved faiss model, faiss label")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='PyTorch for deep face recognition')
     
-    parser.add_argument('--npy_path', type=str, default="../../data/faiss/train")
-    parser.add_argument('--npy_path_eval', type=str, default="../../data/faiss/test")
+    parser.add_argument('--npy_path', type=str, default="/data/faiss/train")
+    parser.add_argument('--npy_path_eval', type=str, default="/data/faiss/test")
 
     parser.add_argument('--d_embedding', type=int, default=128)
     parser.add_argument('--class_nums', type=int, default=10)
 
-    parser.add_argument('--save_dir', type=str, default='../../model/')    
+    parser.add_argument('--save_dir', type=str, default='/model')    
     parser.add_argument('--faiss_model', type=str, default='faiss_index.bin')
     parser.add_argument('--faiss_label', type=str, default='label.json')
 
-    parser.add_argument('--logfile', type=str, default='./log.log')
-
+    # parser.add_argument('--logfile', type=str, default='./log.log')
 
     args = parser.parse_args()
 

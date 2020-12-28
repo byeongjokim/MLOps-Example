@@ -12,7 +12,7 @@ import argparse
 import torch
 import numpy as np
 
-from data import EmbedDataset
+from dataset import EmbedDataset
 
 def inference_and_save(dataloader, model, npy_interval, npy_path, filename, d_embedding, device):
     npy_num = 0
@@ -47,7 +47,7 @@ def inference_and_save(dataloader, model, npy_interval, npy_path, filename, d_em
     del total_embeddings
 
 def main(args):
-    logging.basicConfig(filename=args.logfile, level=logging.INFO, format='[+] %(asctime)s %(message)s', datefmt='%Y%m%d %I:%M:%S %p')
+    # logging.basicConfig(filename=args.logfile, level=logging.INFO, format='[+] %(asctime)s %(message)s', datefmt='%Y%m%d %I:%M:%S %p')
 
     train_dataset = EmbedDataset(args.npy_path)
     train_dataloader = torch.utils.data.DataLoader(
@@ -70,7 +70,8 @@ def main(args):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = torch.jit.load(args.embedding_model_path, map_location=device)
 
-    logging.info("Start to save train dataset")
+    # logging.info("Start to save train dataset")
+    print("Start to save train dataset")
     inference_and_save(
         dataloader=train_dataloader,
         model=model,
@@ -81,7 +82,8 @@ def main(args):
         device=device
     )
 
-    logging.info("Start to save eval dataset")
+    # logging.info("Start to save eval dataset")
+    print("Start to save eval dataset")
     inference_and_save(
         dataloader=eval_dataloader,
         model=model,
@@ -98,10 +100,10 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='PyTorch for deep face recognition')
     
-    parser.add_argument('--embedding_model_path', type=str, default="../../model/model.pt")
+    parser.add_argument('--embedding_model_path', type=str, default="/model/model.pt")
     
-    parser.add_argument('--npy_path', type=str, default="../../data/faiss/train")
-    parser.add_argument('--npy_path_eval', type=str, default="../../data/faiss/test")
+    parser.add_argument('--npy_path', type=str, default="/data/faiss/train")
+    parser.add_argument('--npy_path_eval', type=str, default="/data/faiss/test")
     parser.add_argument('--d_embedding', type=int, default=128)
     parser.add_argument('--npy_interval', type=int, default=5000)
     parser.add_argument('--batch_size', type=int, default=10)
@@ -109,7 +111,7 @@ if __name__ == "__main__":
     parser.add_argument('--n_gpus', type=int, default=1)
     parser.add_argument('--num_workers', type=int, default=2)
 
-    parser.add_argument('--logfile', type=str, default='./log.log')
+    # parser.add_argument('--logfile', type=str, default='./log.log')
 
     args = parser.parse_args()
 

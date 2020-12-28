@@ -25,7 +25,7 @@ from dataset import MnistDataset
 from models import *
 
 def main(args):
-    logging.basicConfig(filename=args.logfile, level=logging.INFO, format='[+] %(asctime)s %(message)s', datefmt='%Y%m%d %I:%M:%S %p')
+    # logging.basicConfig(filename=args.logfile, level=logging.INFO, format='[+] %(asctime)s %(message)s', datefmt='%Y%m%d %I:%M:%S %p')
 
     train_dataset = MnistDataset(args.npy_path, num_classes=args.class_nums)
     train_dataloader = torch.utils.data.DataLoader(
@@ -95,7 +95,8 @@ def main(args):
 
     it = 0
     for epoch in range(1, args.epoch + 1):
-        logging.info('{} epoch started'.format(str(epoch).zfill(3)))
+        # logging.info('{} epoch started'.format(str(epoch).zfill(3)))
+        print('{} epoch started'.format(str(epoch).zfill(3)))
 
         for data in train_dataloader:
             images, labels = data[0].to(device), data[1].to(device)
@@ -114,7 +115,8 @@ def main(args):
                 correct = (np.array(predict.cpu()) == np.array(labels.data.cpu())).sum()
                 now_accuracy = correct/labels.size(0)
 
-                logging.info('{} iterations Accuracy :{}'.format(str(it).zfill(5), str(now_accuracy)))
+                # logging.info('{} iterations Accuracy :{}'.format(str(it).zfill(5), str(now_accuracy)))
+                print('{} iterations Accuracy :{}'.format(str(it).zfill(5), str(now_accuracy)))
 
             if it % args.save_iter == 0:
                 
@@ -159,7 +161,8 @@ def main(args):
                         _, predict = torch.max(output.data, 1)
                         correct = correct + (np.array(predict.cpu()) == np.array(labels.data.cpu())).sum()
                     acc = correct / len(eval_dataloader.dataset)
-                    logging.info('{} iterations Eval Accuracy :{}'.format(str(it).zfill(5), str(acc)))
+                    # logging.info('{} iterations Eval Accuracy :{}'.format(str(it).zfill(5), str(acc)))
+                    print('{} iterations Eval Accuracy :{}'.format(str(it).zfill(5), str(acc)))
                 
                 model.train()
                 metric.train()
@@ -187,6 +190,9 @@ def main(args):
             os.path.join(args.save_dir, args.save_metric)
         )
         
+        print("Saved Models")
+        print("Fin")
+
     del train_dataset
     del eval_dataset
 
@@ -215,7 +221,7 @@ if __name__ == "__main__":
     parser.add_argument('--resume', type=int, default=False)
     parser.add_argument('--model_path', type=str, default='.')
     parser.add_argument('--metric_path', type=str, default='.')
-    parser.add_argument('--logfile', type=str, default='./log.log')
+    # parser.add_argument('--logfile', type=str, default='./log.log')
 
     parser.add_argument('--epoch', type=int, default=2)
     parser.add_argument('--batch_size', type=int, default=16)
@@ -224,5 +230,6 @@ if __name__ == "__main__":
     parser.add_argument('--eval_iter', type=int, default=500)
 
     args = parser.parse_args()
-
+    
+    print("Start Training")
     main(args)
