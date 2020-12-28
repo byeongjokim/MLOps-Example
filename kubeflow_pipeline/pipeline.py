@@ -11,13 +11,13 @@ from kubernetes import client as k8s_client
 )
 
 def mnist_pipeline():
-    # data_0 = dsl.ContainerOp(
-    #     name="load & preprocess data pipeline",
-    #     image="byeongjokim/mnist-pre-data:latest",
-    # )\
-    # .add_volume(k8s_client.V1Volume(name='data', host_path=k8s_client.V1HostPathVolumeSource(path='/data')))\
-    # .add_volume_mount(k8s_client.V1VolumeMount(mount_path='/data', name='data'))\
-    # .set_display_name('collect & preprocess data')
+    data_0 = dsl.ContainerOp(
+        name="load & preprocess data pipeline",
+        image="byeongjokim/mnist-pre-data:latest",
+    )\
+    .add_volume(k8s_client.V1Volume(name='data', host_path=k8s_client.V1HostPathVolumeSource(path='/data')))\
+    .add_volume_mount(k8s_client.V1VolumeMount(mount_path='/data', name='data'))\
+    .set_display_name('collect & preprocess data')
 
 
     # data_1 = dsl.ContainerOp(
@@ -60,6 +60,7 @@ def mnist_pipeline():
     .add_volume(k8s_client.V1Volume(name='model', host_path=k8s_client.V1HostPathVolumeSource(path='/model')))\
     .add_volume_mount(k8s_client.V1VolumeMount(mount_path='/model', name='model'))\
     .set_display_name('train faiss')\
+    .after(data_0)
     # .after(embedding)
 
     # analysis = dsl.ContainerOp(
