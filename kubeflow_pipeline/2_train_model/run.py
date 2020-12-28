@@ -193,8 +193,8 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='PyTorch for deep face recognition')
     
-    parser.add_argument('--npy_path', type=str, default="../../data/mnist/train")
-    parser.add_argument('--npy_path_eval', type=str, default="../../data/mnist/test")
+    parser.add_argument('--npy_path', type=str, default="/data/mnist/train")
+    parser.add_argument('--npy_path_eval', type=str, default="/data/mnist/test")
     parser.add_argument('--input_width', type=int, default=28)
     parser.add_argument('--input_height', type=int, default=28)
     parser.add_argument('--d_embedding', type=int, default=128)
@@ -208,7 +208,7 @@ if __name__ == "__main__":
     parser.add_argument('--n_gpus', type=int, default=1)
     parser.add_argument('--num_workers', type=int, default=2)
 
-    parser.add_argument('--save_dir', type=str, default='../../model/')
+    parser.add_argument('--save_dir', type=str, default='/model/')
     parser.add_argument('--save_model', type=str, default='model.pt')
     parser.add_argument('--save_metric', type=str, default='metric.pt')
 
