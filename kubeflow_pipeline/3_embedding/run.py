@@ -30,7 +30,7 @@ def inference_and_save(dataloader, model, npy_interval, npy_path, filename, d_em
                     npy_path,
                     filename + "_embeddings_" + str(npy_num).zfill(3) + ".npy"
                 ),
-                total_embeddings
+                total_embeddings.astype(np.float32)
             )
             npy_num = npy_num + 1
             total_embeddings = np.empty((0, d_embedding))
@@ -41,7 +41,7 @@ def inference_and_save(dataloader, model, npy_interval, npy_path, filename, d_em
                 npy_path,
                 filename + "_embeddings_" + str(npy_num).zfill(3) + ".npy"
             ),
-            total_embeddings
+            total_embeddings.astype(np.float32)
         )
     
     del total_embeddings

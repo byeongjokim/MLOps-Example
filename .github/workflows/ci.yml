@@ -21,6 +21,10 @@ jobs:
 
       - name: Build Images
         run: |
+          docker build kubeflow_pipeline/0_data -t byeongjokim/mnist-pre-data
+          docker push byeongjokim/mnist-pre-data
+          docker build kubeflow_pipeline/3_embedding -t byeongjokim/mnist-embedding
+          docker push byeongjokim/mnist-embedding
           docker build kubeflow_pipeline/4_train_faiss -t byeongjokim/mnist-train-faiss
           docker push byeongjokim/mnist-train-faiss
       

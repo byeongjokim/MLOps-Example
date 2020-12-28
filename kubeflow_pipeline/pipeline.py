@@ -40,16 +40,16 @@ def mnist_pipeline():
     # .set_display_name('train model')\
     # .after(data_1)
 
-    # embedding = dsl.ContainerOp(
-    #     name="embedding data using embedding model",
-    #     image="byeongjokim/mnist-embedding:latest"
-    # )\
-    # .add_volume(k8s_client.V1Volume(name='data', host_path=k8s_client.V1HostPathVolumeSource(path='/data')))\
-    # .add_volume_mount(k8s_client.V1VolumeMount(mount_path='/data', name='data'))\
-    # .add_volume(k8s_client.V1Volume(name='model', host_path=k8s_client.V1HostPathVolumeSource(path='/model')))\
-    # .add_volume_mount(k8s_client.V1VolumeMount(mount_path='/model', name='model'))\
-    # .set_display_name('embedding')\
-    # .after(train_model)
+    embedding = dsl.ContainerOp(
+        name="embedding data using embedding model",
+        image="byeongjokim/mnist-embedding:latest"
+    )\
+    .add_volume(k8s_client.V1Volume(name='data', host_path=k8s_client.V1HostPathVolumeSource(path='/data')))\
+    .add_volume_mount(k8s_client.V1VolumeMount(mount_path='/data', name='data'))\
+    .add_volume(k8s_client.V1Volume(name='model', host_path=k8s_client.V1HostPathVolumeSource(path='/model')))\
+    .add_volume_mount(k8s_client.V1VolumeMount(mount_path='/model', name='model'))\
+    .set_display_name('embedding')\
+    .after(data_0)
 
     train_faiss = dsl.ContainerOp(
         name="train faiss",
@@ -60,7 +60,7 @@ def mnist_pipeline():
     .add_volume(k8s_client.V1Volume(name='model', host_path=k8s_client.V1HostPathVolumeSource(path='/model')))\
     .add_volume_mount(k8s_client.V1VolumeMount(mount_path='/model', name='model'))\
     .set_display_name('train faiss')\
-    .after(data_0)
+    .after(embedding)
     # .after(embedding)
 
     # analysis = dsl.ContainerOp(
