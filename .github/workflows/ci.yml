@@ -27,26 +27,14 @@ jobs:
           docker push byeongjokim/mnist-val-data
           docker build kubeflow_pipeline/2_train_model -t byeongjokim/mnist-train-model
           docker push byeongjokim/mnist-train-model
-          
-      - uses: actions/setup-python@v2
-        with:
-          python-version: '3.6.12'
-          architecture: x64
-      
-      - uses: BSFishy/pip-action@v1
-        with:
-          packages: |
-            kfp==1.1.2
-
-      - name: run pipeline to kubeflow
-        run: python kubeflow_pipeline/pipeline.py
       
       - name: Slack Notification
         if: always()
         uses: rtCamp/action-slack-notify@v2
         env:
+          SLACK_ICON_EMOJI: ':bell:'
           SLACK_CHANNEL: mnist-project
-          SLACK_MESSAGE: 'Upload & Run pipeline :rocket: - ${{job.status}}'
+          SLACK_MESSAGE: 'Build/Push Images :building_construction: - ${{job.status}}'
           SLACK_USERNAME: Github
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
 
