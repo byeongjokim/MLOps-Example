@@ -24,7 +24,8 @@ def mnist_pipeline():
     )\
     .add_volume(k8s_client.V1Volume(name='data', host_path=k8s_client.V1HostPathVolumeSource(path='/data')))\
     .add_volume_mount(k8s_client.V1VolumeMount(mount_path='/data', name='data'))\
-    .set_display_name('validate data')
+    .set_display_name('validate data')\
+    .after(data_0)
 
     train_model = dsl.ContainerOp(
         name="train embedding model",
@@ -34,7 +35,8 @@ def mnist_pipeline():
     .add_volume_mount(k8s_client.V1VolumeMount(mount_path='/data', name='data'))\
     .add_volume(k8s_client.V1Volume(name='model', host_path=k8s_client.V1HostPathVolumeSource(path='/model')))\
     .add_volume_mount(k8s_client.V1VolumeMount(mount_path='/model', name='model'))\
-    .set_display_name('train model')
+    .set_display_name('train model')\
+    .after(data_1)
 
 
     # embedding = dsl.ContainerOp(
@@ -59,8 +61,12 @@ def mnist_pipeline():
     # .add_volume(k8s_client.V1Volume(name='model', host_path=k8s_client.V1HostPathVolumeSource(path='/model')))\
     # .add_volume_mount(k8s_client.V1VolumeMount(mount_path='/model', name='model'))
 
-    data_1.after(data_0)
-
 if __name__=="__main__":
-    client = kfp.Client(host="http://220.116.228.93:8080/pipeline", namespace="kbj")
-    client.create_run_from_pipeline_func(pipeline_func=mnist_pipeline, arguments={})   
+    host = "http://220.116.228.93:8080/pipeline"
+    namespace = "kbj"
+    pipeline_package_path = "pipeline.zip"
+    kfp.compiler.Compiler().compile(mnist_pipeline, pipeline_package_path)
+
+    client = kfp.Client(host=host, namespace=namespace)
+    pipeline_file = os.path.join(pipeline_package_path)
+    pipeline = client.pipeline_uploads.upload_pipeline(pipeline_file)

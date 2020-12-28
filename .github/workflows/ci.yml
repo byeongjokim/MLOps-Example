@@ -27,7 +27,7 @@ jobs:
           docker push byeongjokim/mnist-val-data
           docker build kubeflow_pipeline/2_train_model -t byeongjokim/mnist-train-model
           docker push byeongjokim/mnist-train-model
-
+          
       - uses: actions/setup-python@v2
         with:
           python-version: '3.6.12'
