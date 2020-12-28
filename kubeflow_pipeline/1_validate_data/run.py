@@ -42,6 +42,7 @@ def validation_data(train_data_file, test_data_file, faiss_train_data_file, fais
 
         for npy_image, npy_label in zip(npy_images, npy_labels):
             validate(npy_image, npy_label, **kwargs)
+            print("[+] {}, {} validated".format(npy_image, npy_label))
 
     iter_npy(train_data_file, **kwargs)
     iter_npy(test_data_file, **kwargs)

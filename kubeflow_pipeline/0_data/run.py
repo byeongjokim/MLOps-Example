@@ -19,15 +19,19 @@ def collect_data(train_data_path, test_data_path, faiss_train_data_path, faiss_t
 
     train_data = glob.glob(os.path.join(train_data_path, "**/*.png"))
     train_labels = [int(i.split(os.sep)[-2]) for i in train_data]
-    
+    print("[+] collect {} train data".format(str(len(train_labels))))
+
     test_data = glob.glob(os.path.join(test_data_path, "**/*.png"))
     test_labels = [int(i.split(os.sep)[-2]) for i in test_data]
+    print("[+] collect {} test data".format(str(len(test_labels))))
 
     faiss_train_data = glob.glob(os.path.join(faiss_train_data_path, "**/*.png"))
     faiss_train_labels = [int(i.split(os.sep)[-2]) for i in faiss_train_data]
+    print("[+] collect {} faiss train data".format(str(len(faiss_train_labels))))
 
     faiss_test_data = glob.glob(os.path.join(faiss_test_data_path, "**/*.png"))
     faiss_test_labels = [int(i.split(os.sep)[-2]) for i in faiss_test_data]
+    print("[+] collect {} faiss test data".format(str(len(faiss_test_labels))))
 
     return {"train":{"image_paths": train_data, "labels": train_labels},
             "test":{"image_paths": test_data, "labels": test_labels},
@@ -51,6 +55,9 @@ def preprocess_data(data, train_data_file, test_data_file, faiss_train_data_file
         np.save(filename + "_images_" + str(npy_num).zfill(3) + ".npy", images)
         np.save(filename + "_labels_" + str(npy_num).zfill(3) + ".npy", labels)
         
+        print("{} saved ".format(filename + "_images_" + str(npy_num).zfill(3) + ".npy"))
+        print("{} saved ".format(filename + "_labels_" + str(npy_num).zfill(3) + ".npy"))
+
         del images
         del labels
 
