@@ -62,7 +62,7 @@ def main(args):
         predicts = total_labels[inds[:,0]]
         
         correct += (predicts == labels).sum()
-        l += labels.size(0)
+        l += labels.size
 
     acc = correct/l
     print("Accuracy: " + str(acc))
