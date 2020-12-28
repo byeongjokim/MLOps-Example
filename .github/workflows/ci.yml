@@ -42,10 +42,11 @@ jobs:
         run: python kubeflow_pipeline/pipeline.py
       
       - name: Slack Notification
+        if: always()
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_CHANNEL: mnist-project
-          SLACK_MESSAGE: 'Upload & Run pipeline :rocket:'
+          SLACK_MESSAGE: 'Upload & Run pipeline :rocket: - ${{job.status}}'
           SLACK_USERNAME: Github
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
 

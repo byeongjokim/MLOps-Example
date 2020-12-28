@@ -64,11 +64,20 @@ def mnist_pipeline():
     # .add_volume_mount(k8s_client.V1VolumeMount(mount_path='/model', name='model'))
 
 if __name__=="__main__":
+    import time
     host = "http://220.116.228.93:8080/pipeline"
     namespace = "kbj"
+    experiment_name = "Mnist"
     pipeline_package_path = "pipeline.zip"
-    kfp.compiler.Compiler().compile(mnist_pipeline, pipeline_package_path)
+    run_name = "from collecting data to training model"
 
     client = kfp.Client(host=host, namespace=namespace)
-    pipeline_file = os.path.join(pipeline_package_path)
-    pipeline = client.pipeline_uploads.upload_pipeline(pipeline_file)
+    kfp.compiler.Compiler().compile(mnist_pipeline, pipeline_package_path)
+    experiment = client.create_experiment(name=experiment_name)
+    run = client.run_pipeline(experiment.id, run_name, pipeline_package_path)
+    # pipeline_file = os.path.join(pipeline_package_path)
+    # pipeline = client.pipeline_uploads.upload_pipeline(pipeline_file)
+
+    # client.create_run_from_pipeline_func(pipeline_file, experiment_name='Basic Experiment')
+
+    
