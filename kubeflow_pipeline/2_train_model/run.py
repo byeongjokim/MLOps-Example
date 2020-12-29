@@ -47,7 +47,7 @@ def main(args):
 
     model = Embedding(
         input_shape=(args.image_width, args.image_height),
-        input_channel=args.image_channel
+        input_channel=args.image_channel,
         d_embedding=args.d_embedding
     )
     print(model)

@@ -80,7 +80,7 @@ def main(args):
         model=model,
         npy_interval=args.npy_interval,
         npy_path=args.faiss_train_data_path,
-        filename="faiss_train",
+        filename=args.faiss_train_data_file,
         d_embedding=args.d_embedding,
         device=device
     )
@@ -92,7 +92,7 @@ def main(args):
         model=model,
         npy_interval=args.npy_interval,
         npy_path=args.faiss_test_data_path,
-        filename="faiss_test",
+        filename=args.faiss_test_data_file,
         d_embedding=args.d_embedding,
         device=device
     )
@@ -108,6 +108,8 @@ if __name__ == "__main__":
     
     parser.add_argument('--faiss_train_data_path', type=str, default="/data/faiss/train")
     parser.add_argument('--faiss_test_data_path', type=str, default="/data/faiss/test")
+    parser.add_argument('--faiss_train_data_file', type=str, default="faiss_train")
+    parser.add_argument('--faiss_test_data_file', type=str, default="faiss_test")
 
     parser.add_argument('--d_embedding', type=int, default=128)
 
