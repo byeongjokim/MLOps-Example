@@ -80,7 +80,7 @@ def main(args):
         faiss_model_file_path,
         faiss_label_file_path
     )
-    print("[+] Saved faiss model({}), faiss label({})".format(faiss_model_file_path, faiss_label_file_path)
+    print("[+] Saved faiss model({}), faiss label({})".format(faiss_model_file_path, faiss_label_file_path))
 
 
 if __name__ == "__main__":

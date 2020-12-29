@@ -240,9 +240,9 @@ if __name__ == "__main__":
 
     parser.add_argument('--epoch', type=int, default=2)
     parser.add_argument('--batch_size', type=int, default=16)
-    parser.add_argument('--log_iter', type=int, default=500)
-    parser.add_argument('--save_iter', type=int, default=500)
-    parser.add_argument('--eval_iter', type=int, default=500)
+    parser.add_argument('--log_iter', type=int, default=100)
+    parser.add_argument('--save_iter', type=int, default=2000)
+    parser.add_argument('--eval_iter', type=int, default=1000)
 
     args = parser.parse_args()
     
