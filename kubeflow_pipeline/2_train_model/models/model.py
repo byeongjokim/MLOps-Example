@@ -3,10 +3,11 @@ import torch.nn as nn
 import numpy as np
 
 class Embedding(nn.Module):
-    def __init__(self, input_shape=(28, 28), d_embedding=128):
+    def __init__(self, input_shape=(28, 28), input_channel=1, d_embedding=128):
         super(Embedding, self).__init__()
+        self.input_channel = input_channel
 
-        self.conv1 = nn.Conv2d(1, 32, 3, 1)
+        self.conv1 = nn.Conv2d(self.input_channel, 32, 3, 1)
         self.bn1 = nn.BatchNorm2d(32)
         self.relu1 = nn.ReLU(inplace=True)
         self.maxpool1 = nn.MaxPool2d(kernel_size=2, stride=2)

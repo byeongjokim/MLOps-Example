@@ -9,7 +9,6 @@ from kubernetes import client as k8s_client
     name="mnist using arcface",
     description="CT pipeline"
 )
-
 def mnist_pipeline():
     data_0 = dsl.ContainerOp(
         name="load & preprocess data pipeline",
@@ -72,7 +71,6 @@ def mnist_pipeline():
     # .add_volume_mount(k8s_client.V1VolumeMount(mount_path='/model', name='model'))
 
 if __name__=="__main__":
-    import time
     host = "http://220.116.228.93:8080/pipeline"
     namespace = "kbj"
     experiment_name = "Mnist"

@@ -1,0 +1,41 @@
+train_data_path: "/data/mnist/train"
+test_data_path: "/data/mnist/test"
+train_data_file: "train_mnist"
+test_data_file: "test_mnist"
+faiss_train_data_path: "/data/faiss/train"
+faiss_test_data_path: "/data/faiss/test"
+faiss_train_data_file: "faiss_train"
+faiss_test_data_file: "faiss_test"
+
+npy_interval: 5000
+
+image_width: 28
+image_height: 28
+image_channel: 1
+scale_size: 32
+d_embedding: 128
+class_nums: 10
+
+epoch: 2
+batch_size: 16
+lr: 0.01
+optimizer: "SGD"
+weight_decay: 5e-4
+log_iter: 500
+save_iter: 500
+eval_iter: 500
+
+n_gpus: 1
+num_workers: 2
+
+model_dir: "/model/"
+model_file: "model.pt"
+metric_file: "metric.pt"
+
+ckpt_dir: "/model/ckpt/"
+model_ckpt: "model.ckpt"
+metric_ckpt: "metric.ckpt"
+
+resume: False
+model_resume: "."
+metric_resume: "."
