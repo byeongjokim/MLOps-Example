@@ -25,13 +25,14 @@ def parse_npy_files(npy_path):
 
     npy_embeddings_files.sort()
     npy_labels_files.sort()
-
+    
     return npy_embeddings_files, npy_labels_files
 
 def main(args):
-    print("train faiss")
-    npy_embeddings_files, npy_labels_files = parse_npy_files(args.npy_path)
-    
+    print("[+] Start to train faiss")
+    npy_embeddings_files, npy_labels_files = parse_npy_files(args.faiss_train_data_path)
+    print("[+] " + str(len(npy_labels_files)) + " train dataset")
+
     face_index = faiss.IndexFlatL2(args.d_embedding)
 
     total_labels = []
@@ -46,8 +47,10 @@ def main(args):
 
         del embeddings
 
-    print("evaluate faiss")
-    npy_embeddings_files, npy_labels_files = parse_npy_files(args.npy_path_eval)
+    print("[+] Start to evaluate faiss")
+    npy_embeddings_files, npy_labels_files = parse_npy_files(args.faiss_test_data_path)
+    print("[+] " + str(len(npy_labels_files)) + " train dataset")
+
     total_labels = np.asarray(total_labels)
     
     correct = 0
@@ -64,32 +67,34 @@ def main(args):
         correct += (predicts == labels).sum()
         l += labels.size
 
-    acc = correct/l
-    print("Accuracy: " + str(acc))
+        del embeddings
 
+    acc = correct/l
+    print("[+] Accuracy for evaluate set: " + str(acc*100) + "%")
+
+    faiss_model_file_path = os.path.join(args.model_dir, args.faiss_model_file)
+    faiss_label_file_path = os.path.join(args.model_dir, args.faiss_label_file)
     save_model(
         face_index,
         total_labels.tolist(),
-        os.path.join(args.save_dir, args.faiss_model),
-        os.path.join(args.save_dir, args.faiss_label)
+        faiss_model_file_path,
+        faiss_label_file_path
     )
-    print("Saved faiss model, faiss label")
+    print("[+] Saved faiss model({}), faiss label({})".format(faiss_model_file_path, faiss_label_file_path)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='PyTorch for deep face recognition')
     
-    parser.add_argument('--npy_path', type=str, default="/data/faiss/train")
-    parser.add_argument('--npy_path_eval', type=str, default="/data/faiss/test")
+    parser.add_argument('--faiss_train_data_path', type=str, default="/data/faiss/train")
+    parser.add_argument('--faiss_test_data_path', type=str, default="/data/faiss/test")
 
     parser.add_argument('--d_embedding', type=int, default=128)
     parser.add_argument('--class_nums', type=int, default=10)
 
-    parser.add_argument('--save_dir', type=str, default='/model')    
-    parser.add_argument('--faiss_model', type=str, default='faiss_index.bin')
-    parser.add_argument('--faiss_label', type=str, default='label.json')
-
-    # parser.add_argument('--logfile', type=str, default='./log.log')
+    parser.add_argument('--model_dir', type=str, default='/model')    
+    parser.add_argument('--faiss_model_file', type=str, default='faiss_index.bin')
+    parser.add_argument('--faiss_label_file', type=str, default='faiss_label.json')
 
     args = parser.parse_args()
 

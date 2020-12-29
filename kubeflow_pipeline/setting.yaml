@@ -31,6 +31,8 @@ num_workers: 2
 model_dir: "/model/"
 model_file: "model.pt"
 metric_file: "metric.pt"
+faiss_model_file: "faiss_index.bin"
+faiss_label_file: "faiss_label.json"
 
 ckpt_dir: "/model/ckpt/"
 model_ckpt: "model.ckpt"
