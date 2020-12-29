@@ -31,7 +31,7 @@ def parse_npy_files(npy_path):
 def main(args):
     print("[+] Start to train faiss")
     npy_embeddings_files, npy_labels_files = parse_npy_files(args.faiss_train_data_path)
-    print("[+] " + str(len(npy_labels_files)) + " train dataset")
+    print("[+] " + str(len(npy_labels_files)) + " train npy")
 
     face_index = faiss.IndexFlatL2(args.d_embedding)
 
@@ -46,10 +46,11 @@ def main(args):
         total_labels += labels
 
         del embeddings
+    print("[+] Trained with {} images".format(str(len(total_labels))))
 
     print("[+] Start to evaluate faiss")
     npy_embeddings_files, npy_labels_files = parse_npy_files(args.faiss_test_data_path)
-    print("[+] " + str(len(npy_labels_files)) + " train dataset")
+    print("[+] " + str(len(npy_labels_files)) + " evaluation npy")
 
     total_labels = np.asarray(total_labels)
     
@@ -70,6 +71,7 @@ def main(args):
         del embeddings
 
     acc = correct/l
+    print("[+] Evaluated with {} images".format(str(l)))
     print("[+] Accuracy for evaluate set: " + str(acc*100) + "%")
 
     faiss_model_file_path = os.path.join(args.model_dir, args.faiss_model_file)
