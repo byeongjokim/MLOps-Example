@@ -83,7 +83,10 @@ def main(args):
 
         images = torch.from_numpy(np.asarray([
             cv2.resize(
-                cv2.imread(batch_image),
+                cv2.cvtColor(
+                    cv2.imread(batch_image),
+                    cv2.COLOR_BGR2GRAY
+                ),
                 (args.image_width, args.image_height)
             )
             for batch_image in batch_images
@@ -102,7 +105,6 @@ def main(args):
 
     start_time = time.time()
     batch_images = image_files[0]
-        image = (image, cv2.COLOR_BGR2GRAY)
 
     images = torch.from_numpy(np.asarray([
         cv2.resize(
