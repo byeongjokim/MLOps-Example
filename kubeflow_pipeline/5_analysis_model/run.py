@@ -91,13 +91,7 @@ def main(args):
         embeddings = model(images.to(device))
         dists, inds = face_index.search(embeddings.detach().cpu().numpy(), 3)
         
-        predicts = face_label[inds]
-
-        if i == 0:
-            print(images.shape)
-            print(embeddings.shape)
-            print(dists.shape, inds.shape)
-            print(predicts.shape)
+        predicts = face_label[inds[:,0]]
 
         results["predicts"] += predicts.tolist()
         results["distances"] += dists.tolist()
