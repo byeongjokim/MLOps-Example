@@ -25,4 +25,4 @@ class MnistDataset(data.Dataset):
 
         image = torch.from_numpy(image).unsqueeze(0)
 
-        return image, self.labels[index]
+        return image.float(), self.labels[index]
