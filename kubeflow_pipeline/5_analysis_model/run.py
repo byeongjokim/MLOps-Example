@@ -8,7 +8,7 @@ import time
 import cv2
 import torch
 import faiss
-
+import numpy as np
 import pandas as pd
 from sklearn.metrics import confusion_matrix
 
