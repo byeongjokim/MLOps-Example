@@ -60,15 +60,17 @@ def mnist_pipeline():
     .set_display_name('train faiss')\
     .after(embedding)
 
-    # analysis = dsl.ContainerOp(
-    #     name="analysis total",
-    #     image="byeongjokim/mnist-analysis:latest"
-    # )\
-    # .set_display_name('analysis')
-
-    # \
-    # .add_volume(k8s_client.V1Volume(name='model', host_path=k8s_client.V1HostPathVolumeSource(path='/model')))\
-    # .add_volume_mount(k8s_client.V1VolumeMount(mount_path='/model', name='model'))
+    analysis = dsl.ContainerOp(
+        name="analysis total",
+        image="byeongjokim/mnist-analysis:latest"
+        output_artifact_paths={'cm': '/cm.json'}
+    )\
+    .add_volume(k8s_client.V1Volume(name='data', host_path=k8s_client.V1HostPathVolumeSource(path='/data')))\
+    .add_volume_mount(k8s_client.V1VolumeMount(mount_path='/data', name='data'))\
+    .add_volume(k8s_client.V1Volume(name='model', host_path=k8s_client.V1HostPathVolumeSource(path='/model')))\
+    .add_volume_mount(k8s_client.V1VolumeMount(mount_path='/model', name='model'))\
+    .set_display_name('analysis')\
+    .after(train_faiss)
 
 if __name__=="__main__":
     host = "http://220.116.228.93:8080/pipeline"

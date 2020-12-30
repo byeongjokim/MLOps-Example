@@ -1,8 +1,9 @@
-# 3_train_faiss
+# 4_train_faiss
 
 # training faiss with preprocessed data
 # 1. build face index
 # 2. fit faiss
+# 3. evaluate faiss
 
 import os
 import logging
@@ -86,7 +87,7 @@ def main(args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='PyTorch for deep face recognition')
+    parser = argparse.ArgumentParser(description='')
     
     parser.add_argument('--faiss_train_data_path', type=str, default="/data/faiss/train")
     parser.add_argument('--faiss_test_data_path', type=str, default="/data/faiss/test")

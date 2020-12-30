@@ -1,4 +1,4 @@
-# 1_train_model
+# 2_train_model
 
 # training with preprocessed data
 # 1. build model
@@ -206,7 +206,7 @@ def main(args):
     del eval_dataset
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='PyTorch for deep face recognition')
+    parser = argparse.ArgumentParser(description='')
     
     parser.add_argument('--train_data_path', type=str, default="/data/mnist/train")
     parser.add_argument('--test_data_path', type=str, default="/data/mnist/test")

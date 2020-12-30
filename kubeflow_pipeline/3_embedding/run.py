@@ -1,4 +1,4 @@
-# 2_embedding
+# 3_embedding
 
 # embedding with preprocessed data
 # 1. build model
@@ -101,7 +101,7 @@ def main(args):
     del eval_dataset
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='PyTorch for deep face recognition')
+    parser = argparse.ArgumentParser(description='')
     
     parser.add_argument('--model_dir', type=str, default='/model/')
     parser.add_argument('--model_file', type=str, default='model.pt')

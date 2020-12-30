@@ -1,0 +1,6 @@
+pandas==1.2.0
+scikit-learn
+numpy==1.19.4
+faiss-cpu
+ujson
+opencv-python==4.4.0.46
