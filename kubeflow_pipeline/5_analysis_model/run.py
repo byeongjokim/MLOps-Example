@@ -89,7 +89,7 @@ def main(args):
         images, _ = data
         
         embeddings = model(images.to(device))
-        dists, inds = face_index.search(embeddings, 3)
+        dists, inds = face_index.search(embeddings.detach().cpu().numpy(), 3)
         
         predicts = face_label[inds]
 
