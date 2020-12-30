@@ -20,8 +20,8 @@ def load_nn_model(faiss_model_path, faiss_label_path):
     
     return face_index, np.asarray(face_label)
 
-def save_cm(results):
-    labels = [i for i in range(10)]
+def save_cm(results, num_classes):
+    labels = [i for i in range(num_classes)]
     cm = confusion_matrix(
         results["labels"],
         results["predicts"],
@@ -66,7 +66,7 @@ def save_cm(results):
 
 
 def main(args):
-    image_files = glob.glob(os.path.join(args.test_data, "**/*.png"))
+    image_files = glob.glob(os.path.join(args.test_data_path, "**/*.png"))
     total_labels = [int(i.split(os.sep)[-2]) for i in test_data]
 
     face_index, face_label = load_nn_model(
@@ -118,6 +118,8 @@ def main(args):
     print("[+] Analysis using {} image data".format(str(len(total_labels))))
     
     print("[+] {} seconds per one image".format(str(t)))
+    
+    save_cm(results, args.class_nums)
     print(results)
     
     print("finnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn")
@@ -127,7 +129,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='')
     
     parser.add_argument('--test_data_path', type=str, default="/data/mnist/test")
-    parser.add_argument('--test_data_file', type=str, default="test_mnist")
 
     parser.add_argument('--image_width', type=int, default=28)
     parser.add_argument('--image_height', type=int, default=28)
