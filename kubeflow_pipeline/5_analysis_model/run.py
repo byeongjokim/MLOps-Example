@@ -105,7 +105,7 @@ def main(args):
         del images
         del embeddings
 
-    print("[+] Analysis using {} image data".format(str(len(total_labels))))
+    print("[+] Analysis using {} image data".format(str(len(analysis_dataset))))
     
     save_cm(results, args.class_nums)
     print(results)
