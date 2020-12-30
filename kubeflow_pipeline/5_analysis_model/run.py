@@ -67,7 +67,7 @@ def save_cm(results, num_classes):
 
 def main(args):
     image_files = glob.glob(os.path.join(args.test_data_path, "**/*.png"))
-    total_labels = [int(i.split(os.sep)[-2]) for i in test_data]
+    total_labels = [int(i.split(os.sep)[-2]) for i in image_files]
 
     face_index, face_label = load_nn_model(
         os.path.join(args.model_dir, args.faiss_model_file),
