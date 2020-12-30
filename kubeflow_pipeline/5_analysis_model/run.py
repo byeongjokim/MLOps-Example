@@ -81,7 +81,7 @@ def main(args):
     for i in range(0, len(image_files), 16):
         batch_images = image_files[i: i+16]
 
-        images = torch.from_numpy(np.asarray([
+        images = torch.from_numpy(np.expand_dims([
             cv2.resize(
                 cv2.cvtColor(
                     cv2.imread(batch_image),
@@ -90,7 +90,7 @@ def main(args):
                 (args.image_width, args.image_height)
             )
             for batch_image in batch_images
-        ])).to(device)
+        ], 1)).to(device)
         
         embeddings = model(images)
         dists, inds = face_index.search(embeddings, 3)
@@ -106,7 +106,7 @@ def main(args):
     start_time = time.time()
     batch_images = image_files[0]
 
-    images = torch.from_numpy(np.asarray([
+    images = torch.from_numpy(np.expand_dims([
         cv2.resize(
             cv2.cvtColor(
                 cv2.imread(batch_image),
@@ -115,7 +115,7 @@ def main(args):
             (args.image_width, args.image_height)
         )
         for batch_image in batch_images
-    ])).to(device)
+    ], 1)).to(device)
     
     embeddings = model(images)
     dists, inds = face_index.search(embeddings, 3)
