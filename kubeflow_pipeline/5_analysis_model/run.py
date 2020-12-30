@@ -5,12 +5,13 @@ import ujson
 import glob
 import time
 
-import cv2
 import torch
 import faiss
 import numpy as np
 import pandas as pd
 from sklearn.metrics import confusion_matrix
+
+from dataset import MnistDataset
 
 def load_nn_model(faiss_model_path, faiss_label_path):
     face_index = faiss.read_index(faiss_model_path)
@@ -66,8 +67,14 @@ def save_cm(results, num_classes):
 
 
 def main(args):
-    image_files = glob.glob(os.path.join(args.test_data_path, "**/*.png"))
-    total_labels = [int(i.split(os.sep)[-2]) for i in image_files]
+    analysis_dataset = MnistDataset(args.test_data_path, num_classes=args.class_nums, shape=(args.image_width, args.image_height))
+    analysis_dataloader = torch.utils.data.DataLoader(
+        analysis_dataset,
+        batch_size=args.batch_size,
+        shuffle=False,
+        num_workers=args.num_workers,
+        drop_last=False
+    )
 
     face_index, face_label = load_nn_model(
         os.path.join(args.model_dir, args.faiss_model_file),
@@ -78,24 +85,19 @@ def main(args):
     model = torch.jit.load(os.path.join(args.model_dir, args.model_file), map_location=device)
 
     results = {"predicts":[], "labels":total_labels, "distances":[]}
-    for i in range(0, len(image_files), 16):
-        batch_images = image_files[i: i+16]
-
-        images = torch.from_numpy(np.expand_dims([
-            cv2.resize(
-                cv2.cvtColor(
-                    cv2.imread(batch_image),
-                    cv2.COLOR_BGR2GRAY
-                ),
-                (args.image_width, args.image_height)
-            )
-            for batch_image in batch_images
-        ], 1)).to(device)
+    for i, data in enumerate(analysis_dataloader):
+        images, _ = data
         
         embeddings = model(images)
         dists, inds = face_index.search(embeddings, 3)
         
         predicts = face_label[inds]
+
+        if i == 0:
+            print(images.shape)
+            print(embeddings.shape)
+            print(dists.shape, inds.shape)
+            print(predicts.shape)
 
         results["predicts"] += predicts.tolist()
         results["distances"] += dists.tolist()
@@ -103,27 +105,7 @@ def main(args):
         del images
         del embeddings
 
-    start_time = time.time()
-    batch_images = image_files[0]
-
-    images = torch.from_numpy(np.expand_dims([
-        cv2.resize(
-            cv2.cvtColor(
-                cv2.imread(batch_image),
-                cv2.COLOR_BGR2GRAY
-            ),
-            (args.image_width, args.image_height)
-        )
-        for batch_image in batch_images
-    ], 1)).to(device)
-    
-    embeddings = model(images)
-    dists, inds = face_index.search(embeddings, 3)
-    t = time.time() - start_time
-    
     print("[+] Analysis using {} image data".format(str(len(total_labels))))
-    
-    print("[+] {} seconds per one image".format(str(t)))
     
     save_cm(results, args.class_nums)
     print(results)
@@ -141,6 +123,8 @@ if __name__ == "__main__":
     parser.add_argument('--image_channel', type=int, default=1)
 
     parser.add_argument('--class_nums', type=int, default=10)
+    parser.add_argument('--batch_size', type=int, default=16)
+    parser.add_argument('--num_workers', type=int, default=2)
 
     parser.add_argument('--model_dir', type=str, default='/model')
     parser.add_argument('--model_file', type=str, default='model.pt')
