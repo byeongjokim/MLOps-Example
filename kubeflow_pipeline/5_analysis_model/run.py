@@ -84,11 +84,11 @@ def main(args):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = torch.jit.load(os.path.join(args.model_dir, args.model_file), map_location=device)
 
-    results = {"predicts":[], "labels":total_labels, "distances":[]}
+    results = {"predicts":[], "labels":analysis_dataset.labels, "distances":[]}
     for i, data in enumerate(analysis_dataloader):
         images, _ = data
         
-        embeddings = model(images)
+        embeddings = model(images.to(device))
         dists, inds = face_index.search(embeddings, 3)
         
         predicts = face_label[inds]
