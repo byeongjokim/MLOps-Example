@@ -77,7 +77,7 @@ if __name__=="__main__":
     namespace = "kbj"
     experiment_name = "Mnist"
     pipeline_package_path = "pipeline.zip"
-    run_name = "from collecting data to training faiss"
+    run_name = "from collecting data to analysis"
 
     client = kfp.Client(host=host, namespace=namespace)
     kfp.compiler.Compiler().compile(mnist_pipeline, pipeline_package_path)
