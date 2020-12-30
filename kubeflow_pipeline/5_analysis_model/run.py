@@ -55,7 +55,7 @@ def save_cm(results):
                 ],
                 'source': lines,
                 'storage': 'inline',
-                'labels': list(map(str, vocab)),
+                'labels': list(map(str, labels)),
             }]
     }
     output_filename = "/cm.json"
