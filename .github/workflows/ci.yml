@@ -31,6 +31,8 @@ jobs:
           docker push byeongjokim/mnist-embedding
           docker build kubeflow_pipeline/4_train_faiss -t byeongjokim/mnist-train-faiss
           docker push byeongjokim/mnist-train-faiss
+          docker build kubeflow_pipeline/5_analysis_model -t byeongjokim/mnist-analysis
+          docker push byeongjokim/mnist-analysis
       
       - name: Slack Notification
         if: always()
