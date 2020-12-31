@@ -63,7 +63,7 @@ def mnist_pipeline():
     analysis = dsl.ContainerOp(
         name="analysis total",
         image="byeongjokim/mnist-analysis:latest",
-        output_artifact_paths={'cm': '/cm.json'}
+        file_outputs={"cm": "/cm.json", "acc": "/acc.json"}
     )\
     .add_volume(k8s_client.V1Volume(name='data', host_path=k8s_client.V1HostPathVolumeSource(path='/data')))\
     .add_volume_mount(k8s_client.V1VolumeMount(mount_path='/data', name='data'))\

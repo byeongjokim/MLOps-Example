@@ -9,7 +9,7 @@ import torch
 import faiss
 import numpy as np
 import pandas as pd
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, accuracy_score
 
 from dataset import MnistDataset
 
@@ -40,11 +40,7 @@ def save_cm(results, num_classes):
     cm_file = os.path.join(output, 'confusion_matrix.csv')
     with open(cm_file, 'w') as f:
         df_cm.to_csv(f, columns=['target', 'predicted', 'count'], header=False, index=False)
-    
-    lines = ''
-    with open(cm_file, 'r') as f:
-        lines = f.read()
-    
+
     metadata = {
         'outputs': [{
                 'type': 'confusion_matrix',
@@ -54,8 +50,7 @@ def save_cm(results, num_classes):
                     {'name': 'predicted', 'type': 'CATEGORY'},
                     {'name': 'count', 'type': 'NUMBER'},
                 ],
-                'source': lines,
-                'storage': 'inline',
+                'source': cm_file,
                 'labels': list(map(str, labels)),
             }]
     }
@@ -63,7 +58,17 @@ def save_cm(results, num_classes):
     with open(output_filename, 'w') as f:
         ujson.dump(metadata, f)
 
-    return output_filename
+    accuracy = accuracy_score(results["labels"], results["predicts"])
+    metrics = {
+        'metrics': [{
+            'name': 'accuracy-score',
+            'numberValue':  accuracy,
+            'format': "PERCENTAGE",
+        }]
+    }
+    output_filename = "/acc.json"
+    with open(output_filename, 'w') as f:
+        ujson.dump(metrics, f)
 
 
 def main(args):
