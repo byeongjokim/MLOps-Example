@@ -54,8 +54,8 @@ def save_cm(results, num_classes):
                 'labels': list(map(str, labels)),
             }]
     }
-    output_filename = "/cm.json"
-    with open(output_filename, 'w') as f:
+
+    with open("/mlpipeline-ui-metadata.json", 'w') as f:
         ujson.dump(metadata, f)
 
     accuracy = accuracy_score(results["labels"], results["predicts"])
@@ -66,8 +66,8 @@ def save_cm(results, num_classes):
             'format': "PERCENTAGE",
         }]
     }
-    output_filename = "/acc.json"
-    with open(output_filename, 'w') as f:
+    
+    with file_io.FileIO('/mlpipeline-metrics.json', 'w') as f:
         ujson.dump(metrics, f)
 
 
