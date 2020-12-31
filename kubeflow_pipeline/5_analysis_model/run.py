@@ -67,7 +67,7 @@ def save_cm(results, num_classes):
         }]
     }
     
-    with file_io.FileIO('/mlpipeline-metrics.json', 'w') as f:
+    with open('/mlpipeline-metrics.json', 'w') as f:
         ujson.dump(metrics, f)
 
 
