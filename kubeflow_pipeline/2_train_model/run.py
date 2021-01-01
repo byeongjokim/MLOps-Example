@@ -207,7 +207,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='')
-    
+        
     parser.add_argument('--train_data_path', type=str, default="/data/mnist/train")
     parser.add_argument('--test_data_path', type=str, default="/data/mnist/test")
 

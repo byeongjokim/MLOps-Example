@@ -20,7 +20,8 @@ def inference_and_save(dataloader, model, npy_interval, npy_path, filename, d_em
     for data in dataloader:
         images = data.to(device)
         
-        embeddings = model(images)
+        with torch.no_grad():
+            embeddings = model(images)
 
         total_embeddings = np.append(total_embeddings, embeddings.detach().numpy(), axis=0)
 

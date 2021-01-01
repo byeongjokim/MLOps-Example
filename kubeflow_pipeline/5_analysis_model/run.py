@@ -36,8 +36,7 @@ def save_cm(results, num_classes):
     
     df_cm = pd.DataFrame(data, columns=['target', 'predicted', 'count'])
 
-    output = '.'
-    cm_file = os.path.join(output, 'confusion_matrix.csv')
+    cm_file = os.path.join('/confusion_matrix.csv')
     with open(cm_file, 'w') as f:
         df_cm.to_csv(f, columns=['target', 'predicted', 'count'], header=False, index=False)
 
@@ -93,7 +92,9 @@ def main(args):
     for i, data in enumerate(analysis_dataloader):
         images, _ = data
         
-        embeddings = model(images.to(device))
+        with torch.no_grad():
+            embeddings = model(images.to(device))
+        
         dists, inds = face_index.search(embeddings.detach().cpu().numpy(), 3)
         
         predicts = face_label[inds[:,0]]
