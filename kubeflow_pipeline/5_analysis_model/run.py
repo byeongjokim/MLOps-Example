@@ -40,10 +40,6 @@ def save_cm(results, num_classes):
     with open(cm_file, 'w') as f:
         df_cm.to_csv(f, columns=['target', 'predicted', 'count'], header=False, index=False)
     
-    lines = ''
-    with open(cm_file, 'r') as f:
-        lines = f.read()
-    
     metadata = {
         'outputs': [{
                 'type': 'confusion_matrix',
@@ -53,8 +49,7 @@ def save_cm(results, num_classes):
                     {'name': 'predicted', 'type': 'CATEGORY'},
                     {'name': 'count', 'type': 'NUMBER'},
                 ],
-                'source': lines,
-                'storage': 'inline',
+                'source': cm_file,
                 'labels': list(map(str, labels)),
             }]
     }
@@ -115,7 +110,6 @@ def main(args):
     print("[+] Analysis using {} image data".format(str(len(analysis_dataset))))
     
     save_cm(results, args.class_nums)
-    print(results)
     
     print("finnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn")
 

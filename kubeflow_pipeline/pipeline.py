@@ -64,6 +64,7 @@ def mnist_pipeline():
         name="analysis total",
         image="byeongjokim/mnist-analysis:latest",
         file_outputs={
+            "confusion_matrix": "/confusion_matrix.csv",
             "mlpipeline-ui-metadata": "/mlpipeline-ui-metadata.json",
             "accuracy": "/accuracy.json",
             "mlpipeline_metrics": "/mlpipeline-metrics.json"
