@@ -36,7 +36,7 @@ def save_cm(results, num_classes):
     
     df_cm = pd.DataFrame(data, columns=['target', 'predicted', 'count'])
 
-    cm_file = os.path.join('/confusion_matrix.csv')
+    cm_file = os.path.join('/model/confusion_matrix.csv')
     with open(cm_file, 'w') as f:
         df_cm.to_csv(f, columns=['target', 'predicted', 'count'], header=False, index=False)
     
