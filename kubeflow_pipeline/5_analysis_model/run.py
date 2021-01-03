@@ -39,7 +39,11 @@ def save_cm(results, num_classes):
     cm_file = os.path.join('/confusion_matrix.csv')
     with open(cm_file, 'w') as f:
         df_cm.to_csv(f, columns=['target', 'predicted', 'count'], header=False, index=False)
-
+    
+    lines = ''
+    with open(cm_file, 'r') as f:
+        lines = f.read()
+    
     metadata = {
         'outputs': [{
                 'type': 'confusion_matrix',
@@ -49,7 +53,8 @@ def save_cm(results, num_classes):
                     {'name': 'predicted', 'type': 'CATEGORY'},
                     {'name': 'count', 'type': 'NUMBER'},
                 ],
-                'source': cm_file,
+                'source': lines,
+                'storage': 'inline',
                 'labels': list(map(str, labels)),
             }]
     }
@@ -65,7 +70,9 @@ def save_cm(results, num_classes):
             'format': "PERCENTAGE",
         }]
     }
-    
+
+    with open('/accuracy.json', 'w') as f:
+        ujson.dump(accuracy, f)
     with open('/mlpipeline-metrics.json', 'w') as f:
         ujson.dump(metrics, f)
 

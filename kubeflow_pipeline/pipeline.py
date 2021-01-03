@@ -63,7 +63,11 @@ def mnist_pipeline():
     analysis = dsl.ContainerOp(
         name="analysis total",
         image="byeongjokim/mnist-analysis:latest",
-        file_outputs={"mlpipeline-ui-metadata": "/mlpipeline-ui-metadata.json", "mlpipeline_metrics": "/mlpipeline-metrics.json"}
+        file_outputs={
+            "mlpipeline-ui-metadata": "/mlpipeline-ui-metadata.json",
+            "accuracy": "/accuracy.json",
+            "mlpipeline_metrics": "/mlpipeline-metrics.json"
+        }
     )\
     .add_volume(k8s_client.V1Volume(name='data', host_path=k8s_client.V1HostPathVolumeSource(path='/data')))\
     .add_volume_mount(k8s_client.V1VolumeMount(mount_path='/data', name='data'))\
@@ -71,6 +75,17 @@ def mnist_pipeline():
     .add_volume_mount(k8s_client.V1VolumeMount(mount_path='/model', name='model'))\
     .set_display_name('analysis')\
     .after(train_faiss)
+
+    baseline = 0.8
+    with dsl.Condition(analysis.outputs["accuracy"] > baseline) as check_deploy:
+        deploy = dsl.ContainerOp(
+            name="deploy mar",
+            image="byeongjokim/mnist-deploy:latest",
+        )\
+        .add_volume(k8s_client.V1Volume(name='model', host_path=k8s_client.V1HostPathVolumeSource(path='/model')))\
+        .add_volume_mount(k8s_client.V1VolumeMount(mount_path='/model', name='model'))\
+        .set_display_name('deploy')\
+        .after(analysis)
 
 if __name__=="__main__":
     host = "http://220.116.228.93:8080/pipeline"
