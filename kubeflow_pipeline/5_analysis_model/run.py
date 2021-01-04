@@ -49,7 +49,7 @@ def save_cm(results, num_classes):
                     {'name': 'predicted', 'type': 'CATEGORY'},
                     {'name': 'count', 'type': 'NUMBER'},
                 ],
-                'source': cm_file,
+                'source': "file://" + cm_file,
                 'labels': list(map(str, labels)),
             }]
     }

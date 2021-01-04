@@ -19,6 +19,11 @@ def main(args):
     cmd += "-f"
     
     print(cmd)
+    
+    if not os.path.isdir(args.export_path):
+        os.mkdir(args.export_path)
+        print('[+] Made export path:', args.export_path)
+
     os.system(cmd)
 
 if __name__ == "__main__":
@@ -35,7 +40,7 @@ if __name__ == "__main__":
     
     parser.add_argument('--handler', type=str, default="handler.py")
 
-    parser.add_argument('--export_path', type=str, default='/model')
+    parser.add_argument('--export_path', type=str, default='/deploy-model/model-store')
 
     args = parser.parse_args()
 
