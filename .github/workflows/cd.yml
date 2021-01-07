@@ -23,6 +23,7 @@ jobs:
         with:
           packages: |
             kfp==1.1.2
+            kfserving==0.4.1
 
       - name: run pipeline to kubeflow
         run: python kubeflow_pipeline/pipeline.py
