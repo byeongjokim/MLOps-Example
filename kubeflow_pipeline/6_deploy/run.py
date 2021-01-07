@@ -2,6 +2,10 @@ import os
 import argparse
 
 def main(args):
+    if not os.path.isdir(args.export_path):
+        os.mkdir(args.export_path)
+        print('[+] Mkdir export path:', args.export_path)
+
     # cmd = "torch-model-archiver --model-name embedding --version 1.0 --serialized-file model.pt --extra-files MyHandler.py,faiss_index.bin,faiss_label.json --handler handler.py"
     cmd = "torch-model-archiver "
     cmd += "--model-name {} ".format(args.model_name)
@@ -19,12 +23,18 @@ def main(args):
     cmd += "-f"
     
     print(cmd)
-    
-    if not os.path.isdir(args.export_path):
-        os.mkdir(args.export_path)
-        print('[+] Made export path:', args.export_path)
-
     os.system(cmd)
+
+    if not os.path.isdir(args.config_path):
+        os.mkdir(args.config_path)
+        print('[+] Mkdir config path:', args.config_path)
+
+    config_file = os.path.join(args.config_path, "config.properties")
+    cmd = "cp ./config.properties {}".format(config_file)
+    print(cmd)
+    os.system(cmd)
+    
+    # git add yaml
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='')
@@ -41,6 +51,7 @@ if __name__ == "__main__":
     parser.add_argument('--handler', type=str, default="handler.py")
 
     parser.add_argument('--export_path', type=str, default='/deploy-model/model-store')
+    parser.add_argument('--config_path', type=str, default='/deploy-model/config')
 
     args = parser.parse_args()
 
