@@ -1,0 +1,45 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: torchserve
+  namespace: kbj
+  labels:
+    app: torchserve
+    app.kubernetes.io/version: "v0.0"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: torchserve
+  template:
+    metadata:
+      labels:
+        app: torchserve
+    spec:
+      volumes:
+      - name: persistent-storage
+        persistentVolumeClaim:
+          claimName: serving-model-pvc
+      containers:
+      - name: torchserve
+        image: 'byeongjokim/torchserve'
+        args: ["torchserve", "--start",  "--model-store", "/home/model-server/shared/model-store/", "--ts-config", "/home/model-server/shared/config/config.properties"]
+        ports:
+        - name: ts
+          containerPort: '8082'
+        - name: ts-management
+          containerPort: '8083'
+        - name: ts-metrics
+          containerPort: '8084'
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - mountPath: /home/model-server/shared/
+            name: persistent-storage
+        resources:
+          limits:
+            cpu: 1
+            memory: 4Gi
+            nvidia.com/gpu: 0
+          requests:
+            cpu: 1
+            memory: 1Gi

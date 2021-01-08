@@ -13,17 +13,6 @@ import yaml
     description="CT pipeline"
 )
 def mnist_pipeline():
-    # deploy_config = yaml.load(open("./7_serving/deployment.yaml"))
-    # deploy_step = dsl.ResourceOp(
-    #     name="mnist-deploy",
-    #     k8s_resource=deploy_config
-    # )
-
-    # serve_config = yaml.load(open("./7_serving/service.yaml"))
-    # serve_step = dsl.ResourceOp(
-    #     name="mnist-serving",
-    #     k8s_resource=serve_config
-    # )
     data_0 = dsl.ContainerOp(
         name="load & preprocess data pipeline",
         image="byeongjokim/mnist-pre-data:latest",
@@ -61,7 +50,7 @@ def mnist_pipeline():
         name="analysis total",
         image="byeongjokim/mnist-analysis:latest",
         file_outputs={
-            "confusion_matrix": "/model/confusion_matrix.csv",
+            "confusion_matrix": "/confusion_matrix.csv",
             "mlpipeline-ui-metadata": "/mlpipeline-ui-metadata.json",
             "accuracy": "/accuracy.json",
             "mlpipeline_metrics": "/mlpipeline-metrics.json"
@@ -82,11 +71,22 @@ def mnist_pipeline():
 if __name__=="__main__":
     host = "http://220.116.228.93:8080/pipeline"
     namespace = "kbj"
-    experiment_name = "Mnist"
+    
+    pipeline_name = "Mnist"
     pipeline_package_path = "pipeline.zip"
+    version = "v0.1"
+
+    experiment_name = "For Develop"
     run_name = "from collecting data to deploy"
 
     client = kfp.Client(host=host, namespace=namespace)
     kfp.compiler.Compiler().compile(mnist_pipeline, pipeline_package_path)
+
+    pipeline_id = client.get_pipeline_id("Mnist")
+    if pipeline_id:
+        client.upload_pipeline_version(pipeline_package_path=pipeline_package_path, pipeline_version_name=version, pipeline_name=pipeline_name)
+    else:
+        client.upload_pipeline(pipeline_package_path=pipeline_package_path, pipeline_name=pipeline_name)
+    
     experiment = client.create_experiment(name=experiment_name)
     run = client.run_pipeline(experiment.id, run_name, pipeline_package_path)

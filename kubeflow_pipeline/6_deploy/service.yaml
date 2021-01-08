@@ -1,0 +1,25 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: torchserve
+  namespace: kbj
+  labels:
+    app: torchserve
+    app.kubernetes.io/version: "v0.0"
+  annotations:
+    prometheus.io/scrape: 'true'
+    prometheus.io/port: '8084'
+spec:
+  ports:
+  - name: preds
+    port: '8082'
+    targetPort: ts
+  - name: mdl
+    port: '8083'
+    targetPort: ts-management
+  - name: metrics
+    port: '8084'
+    targetPort: ts-metrics
+  type: LoadBalancer
+  selector:
+    app: torchserve

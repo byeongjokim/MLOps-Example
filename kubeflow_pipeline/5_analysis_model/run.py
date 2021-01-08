@@ -36,10 +36,14 @@ def save_cm(results, num_classes):
     
     df_cm = pd.DataFrame(data, columns=['target', 'predicted', 'count'])
 
-    cm_file = '/model/confusion_matrix.csv'
+    cm_file = '/confusion_matrix.csv'
     with open(cm_file, 'w') as f:
         df_cm.to_csv(f, columns=['target', 'predicted', 'count'], header=False, index=False)
     
+    lines = ''
+    with open(cm_file, 'r') as f:
+        lines = f.read()
+
     metadata = {
         'outputs': [{
                 'type': 'confusion_matrix',
@@ -49,7 +53,8 @@ def save_cm(results, num_classes):
                     {'name': 'predicted', 'type': 'CATEGORY'},
                     {'name': 'count', 'type': 'NUMBER'},
                 ],
-                'source': "file://" + cm_file,
+                'source': lines,
+                'storage': 'inline',
                 'labels': list(map(str, labels)),
             }]
     }
