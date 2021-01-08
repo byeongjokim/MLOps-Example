@@ -121,7 +121,7 @@ def serving(args, version):
         api_version="v1",
         kind="Service",
         metadata=client.V1ObjectMeta(
-            name="service-example",
+            name="torchserve",
             labels={
                 "app":"torchserve",
                 "app.kubernetes.io/version":version
