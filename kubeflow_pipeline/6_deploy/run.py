@@ -2,6 +2,7 @@ import os
 import argparse
 from datetime import datetime
 from kubernetes import client, config
+import yaml
 
 def archive(args, version):
     if not os.path.isdir(args.export_path):
