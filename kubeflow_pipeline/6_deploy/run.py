@@ -38,15 +38,6 @@ def archive(args, version):
     os.system(cmd)
 
 def serving(args, version):
-    # with open("service.yaml") as f:
-    #     svc_yaml = yaml.safe_load(f)
-
-    # svc_yaml["metadata"]["labels"]["app.kubernetes.io/version"] = version
-
-    # with open("deployment.yaml") as f:
-    #     dep_yaml = yaml.safe_load(f)
-    
-    # dep_yaml["metadata"]["labels"]["app.kubernetes.io/version"] = version
     config.load_incluster_config()
 
     k8s_apps_v1 = client.AppsV1Api()
@@ -126,7 +117,7 @@ def serving(args, version):
     print("[+] Deployment created")
 
     k8s_core_v1 = client.CoreV1Api()
-    body = client.V1Service(
+    service = client.V1Service(
         api_version="v1",
         kind="Service",
         metadata=client.V1ObjectMeta(
@@ -158,9 +149,8 @@ def serving(args, version):
             ]
         )
     )
-    k8s_apps_v1.create_namespaced_service(body=svc_yaml, namespace="kbj")
+    k8s_core_v1.create_namespaced_service(body=service, namespace="kbj")
     print("[+] Service created")
-    
 
 def main(args):
     now = datetime.now()
