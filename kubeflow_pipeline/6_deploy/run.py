@@ -39,20 +39,25 @@ def archive(args, version):
 
 def serving(args, version):
     with open("service.yaml") as f:
-        yaml_content = yaml.load(f, Loader=yaml.FullLoader)
+        svc_yaml = yaml.safe_load(f, Loader=yaml.FullLoader)
 
-    yaml_content["metadata"]["labels"]["app.kubernetes.io/version"] = version
+    svc_yaml["metadata"]["labels"]["app.kubernetes.io/version"] = version
 
     with open("deployment.yaml") as f:
-        yaml_content = yaml.load(f, Loader=yaml.FullLoader)
+        dep_yaml = yaml.safe_load(f, Loader=yaml.FullLoader)
     
-    yaml_content["metadata"]["labels"]["app.kubernetes.io/version"] = version
+    dep_yaml["metadata"]["labels"]["app.kubernetes.io/version"] = version
+    
     
     config.load_incluster_config()
-    v1 = client.CoreV1Api()
-    ret = v1.list_pod_for_all_namespaces(watch=False)
-    for i in ret.items:
-        print("%s\t%s\t%s" %(i.status.pod_ip, i.metadata.namespace, i.metadata.name))
+
+    k8s_apps_v1 = client.AppsV1Api()
+    k8s_apps_v1.create_namespaced_deployment(body=dep_yaml, namespace="kbj")
+    print("[+] Deployment created")
+
+    k8s_apps_v1.create_namespaced_service(body=svc_yaml, namespace="kbj")
+    print("[+] Service created")
+    
 
 def main(args):
     now = datetime.now()

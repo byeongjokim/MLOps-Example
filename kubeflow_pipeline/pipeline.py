@@ -6,8 +6,6 @@ from kfp import dsl
 from kfp import onprem
 from kubernetes import client as k8s_client
 
-import yaml
-
 @dsl.pipeline(
     name="mnist using arcface",
     description="CT pipeline"
@@ -88,5 +86,5 @@ if __name__=="__main__":
     else:
         client.upload_pipeline(pipeline_package_path=pipeline_package_path, pipeline_name=pipeline_name)
     
-    experiment = client.create_experiment(name=experiment_name)
+    experiment = client.create_experiment(name=experiment_name, namespace=namespace)
     run = client.run_pipeline(experiment.id, run_name, pipeline_package_path)
