@@ -22,8 +22,7 @@ jobs:
       - uses: BSFishy/pip-action@v1
         with:
           packages: |
-            kfp==1.1.2
-            kfserving==0.4.1
+            kfp==1.3.0
 
       - name: run pipeline to kubeflow
         run: python kubeflow_pipeline/pipeline.py
