@@ -55,16 +55,16 @@ def serving(args, version):
             labels={"app":"torchserve"}
         ),
         spec=client.V1PodSpec(
-            containers=[
-                volumes=[
-                    client.V1Volume(
-                        name="persistent-storage",
-                        persistent_volume_claim=client.V1PersistentVolumeClaimVolumeSource(
-                            claim_name="serving-model-pvc"
-                        )
+            volumes=[
+                client.V1Volume(
+                    name="persistent-storage",
+                    persistent_volume_claim=client.V1PersistentVolumeClaimVolumeSource(
+                        claim_name="serving-model-pvc"
                     )
-                ],
-                container = client.V1Container(
+                )
+            ],
+            containers=[
+                client.V1Container(
                     name="torchserve",
                     image="byeongjokim/torchserve",
                     args=["torchserve", "--start",  "--model-store", "/home/model-server/shared/model-store/", "--ts-config", "/home/model-server/shared/config/config.properties"],
@@ -86,9 +86,9 @@ def serving(args, version):
                     volume_mounts=[
                         client.V1VolumeMount(
                             name="persistent-storage",
-                            mountPath="/home/model-server/shared/"
+                            mount_path="/home/model-server/shared/"
                         )
-                    ]
+                    ],
                     resources=client.V1ResourceRequirements(
                         limits={
                             "cpu":1,
@@ -102,7 +102,6 @@ def serving(args, version):
                     )
                 )
             ]
-
         )
     )
     deployment = client.V1Deployment(
@@ -119,7 +118,7 @@ def serving(args, version):
             replicas=1,
             selector=client.V1LabelSelector(
                 match_labels={"app":"torchserve"}
-            )
+            ),
             template=template
         )
     )
