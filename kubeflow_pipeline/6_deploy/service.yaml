@@ -12,13 +12,13 @@ metadata:
 spec:
   ports:
   - name: preds
-    port: '8082'
+    port: 8082
     targetPort: ts
   - name: mdl
-    port: '8083'
+    port: 8083
     targetPort: ts-management
   - name: metrics
-    port: '8084'
+    port: 8084
     targetPort: ts-metrics
   type: LoadBalancer
   selector:

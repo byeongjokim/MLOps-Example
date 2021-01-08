@@ -26,11 +26,11 @@ spec:
         args: ["torchserve", "--start",  "--model-store", "/home/model-server/shared/model-store/", "--ts-config", "/home/model-server/shared/config/config.properties"]
         ports:
         - name: ts
-          containerPort: '8082'
+          containerPort: 8082
         - name: ts-management
-          containerPort: '8083'
+          containerPort: 8083
         - name: ts-metrics
-          containerPort: '8084'
+          containerPort: 8084
         imagePullPolicy: IfNotPresent
         volumeMounts:
           - mountPath: /home/model-server/shared/
