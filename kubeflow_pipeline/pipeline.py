@@ -67,7 +67,7 @@ def mnist_pipeline():
         .apply(onprem.mount_pvc("deploy-model-pvc", volume_name="deploy-model", volume_mount_path="/deploy-model"))
 
 if __name__=="__main__":
-    host = "http://220.116.228.93:8080/pipeline"
+    host = "http://220.116.228.93:8089/pipeline"
     namespace = "kbj"
     
     pipeline_name = "Mnist"
