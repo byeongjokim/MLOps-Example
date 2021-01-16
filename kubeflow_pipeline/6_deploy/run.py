@@ -43,7 +43,7 @@ def archive(args, version):
 
     with open(config_file, "w") as f:
         f.write(config)
-        
+
     # cmd = "cp ./config.properties {}".format(config_file)
     # print(cmd)
     # os.system(cmd)
@@ -127,7 +127,7 @@ def serving(args, version):
                     max_surge=1,
                     max_unavailable=1,
                 )
-            )
+            ),
             template=template
         )
     )
