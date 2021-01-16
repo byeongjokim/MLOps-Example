@@ -5,13 +5,15 @@ from kubernetes import client, config
 import yaml
 
 def archive(args, version):
+    model_name = args.model_name+"_"+version
+
     if not os.path.isdir(args.export_path):
         os.mkdir(args.export_path)
         print('[+] Mkdir export path:', args.export_path)
-
+    
     # cmd = "torch-model-archiver --model-name embedding --version 1.0 --serialized-file model.pt --extra-files MyHandler.py,faiss_index.bin,faiss_label.json --handler handler.py"
     cmd = "torch-model-archiver "
-    cmd += "--model-name {} ".format(args.model_name)
+    cmd += "--model-name {} ".format(model_name)
     cmd += "--version {} ".format(version)
     cmd += "--serialized-file {} ".format(os.path.join(args.model_dir, args.model_file))
 
@@ -24,7 +26,6 @@ def archive(args, version):
     cmd += "--handler {} ".format(args.handler)
     cmd += "--export-path {} ".format(args.export_path)
     cmd += "-f"
-    
     print(cmd)
     os.system(cmd)
 
@@ -32,10 +33,20 @@ def archive(args, version):
         os.mkdir(args.config_path)
         print('[+] Mkdir config path:', args.config_path)
 
+    config="""inference_address=http://0.0.0.0:8082
+    management_address=http://0.0.0.0:8083
+    metrics_address=http://0.0.0.0:8084
+    job_queue_size=100
+    load_models={}""".format(model_name+".mar")
+
     config_file = os.path.join(args.config_path, "config.properties")
-    cmd = "cp ./config.properties {}".format(config_file)
-    print(cmd)
-    os.system(cmd)
+
+    with open(config_file, "w") as f:
+        f.write(config)
+        
+    # cmd = "cp ./config.properties {}".format(config_file)
+    # print(cmd)
+    # os.system(cmd)
 
 def serving(args, version):
     config.load_incluster_config()
@@ -106,10 +117,17 @@ def serving(args, version):
             }
         ),
         spec=client.V1DeploymentSpec(
-            replicas=1,
+            replicas=2,
             selector=client.V1LabelSelector(
                 match_labels={"app":"torchserve"}
             ),
+            strategy=client.V1DeploymentStrategy(
+                type="RollingUpdate",
+                rolling_update=client.V1RollingUpdateDeployment(
+                    max_surge=1,
+                    max_unavailable=1,
+                )
+            )
             template=template
         )
     )
@@ -154,7 +172,7 @@ def serving(args, version):
 
 def main(args):
     now = datetime.now()
-    version = now.strftime("%y%m%d-%H%M")
+    version = now.strftime("%y%m%d_%H%M")
 
     archive(args, version)
     serving(args, version)
@@ -175,9 +193,6 @@ if __name__ == "__main__":
 
     parser.add_argument('--export_path', type=str, default='/deploy-model/model-store')
     parser.add_argument('--config_path', type=str, default='/deploy-model/config')
-
-    parser.add_argument('--git_url', type=str, default='https://github.com/byeongjokim/MLOps-Serving')
-    parser.add_argument('--repo_dir', type=str, default='serving')
 
     args = parser.parse_args()
 

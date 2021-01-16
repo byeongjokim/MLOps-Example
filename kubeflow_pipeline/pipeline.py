@@ -75,7 +75,7 @@ if __name__=="__main__":
     version = "v0.1"
 
     experiment_name = "For Develop"
-    run_name = "from collecting data to deploy"
+    run_name = "serving version 0.1"
 
     client = kfp.Client(host=host, namespace=namespace)
     kfp.compiler.Compiler().compile(mnist_pipeline, pipeline_package_path)
