@@ -3,6 +3,7 @@ import argparse
 from datetime import datetime
 from kubernetes import client, config
 import yaml
+import requests
 
 def archive(args, version):
     model_name_version = args.model_name+"_"+version
@@ -174,9 +175,11 @@ def serving(args, version):
         #check url
         print(ex)
     
-    cmd= 'curl -v -X POST "http://torchserve:{}/models?model_name={}&url={}.mar"'.format(args.manage_port, args.model_name, model_name_version+".mar")
-    print(cmd)
-    os.system(cmd)
+    # cmd= 'curl -v -X POST "http://torchserve:{}/models?model_name={}&url={}.mar"'.format(args.manage_port, args.model_name, model_name_version)
+    
+    url = "http://torchserve:{}/models?model_name={}&url={}.mar".format(args.manage_port, args.model_name, model_name_version)
+    res = requests.post(URL)
+    print(res.text)
 
 def main(args):
     now = datetime.now()
