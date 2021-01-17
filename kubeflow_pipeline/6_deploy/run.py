@@ -5,7 +5,7 @@ from kubernetes import client, config
 import yaml
 
 def archive(args, version):
-    model_name = args.model_name+"_"+version
+    model_name_version = args.model_name+"_"+version
 
     if not os.path.isdir(args.export_path):
         os.mkdir(args.export_path)
@@ -13,7 +13,7 @@ def archive(args, version):
     
     # cmd = "torch-model-archiver --model-name embedding --version 1.0 --serialized-file model.pt --extra-files MyHandler.py,faiss_index.bin,faiss_label.json --handler handler.py"
     cmd = "torch-model-archiver "
-    cmd += "--model-name {} ".format(model_name)
+    cmd += "--model-name {} ".format(model_name_version)
     cmd += "--version {} ".format(version)
     cmd += "--serialized-file {} ".format(os.path.join(args.model_dir, args.model_file))
 
@@ -32,21 +32,17 @@ def archive(args, version):
     if not os.path.isdir(args.config_path):
         os.mkdir(args.config_path)
         print('[+] Mkdir config path:', args.config_path)
-
-    config="""inference_address=http://0.0.0.0:8082
-    management_address=http://0.0.0.0:8083
-    metrics_address=http://0.0.0.0:8084
+    
+    config="""inference_address=http://0.0.0.0:{}
+    management_address=http://0.0.0.0:{}
+    metrics_address=http://0.0.0.0:{}
     job_queue_size=100
-    load_models={}""".format(model_name+".mar")
+    load_models=standalone""".format(args.pred_port, args.manage_port, args.metric_port)
 
     config_file = os.path.join(args.config_path, "config.properties")
 
     with open(config_file, "w") as f:
         f.write(config)
-
-    # cmd = "cp ./config.properties {}".format(config_file)
-    # print(cmd)
-    # os.system(cmd)
 
 def serving(args, version):
     config.load_incluster_config()
@@ -74,15 +70,15 @@ def serving(args, version):
                     ports=[
                         client.V1ContainerPort(
                             name="ts",
-                            container_port=8082
+                            container_port=args.pred_port
                         ),
                         client.V1ContainerPort(
                             name="ts-management",
-                            container_port=8083
+                            container_port=args.manage_port
                         ),
                         client.V1ContainerPort(
                             name="ts-metrics",
-                            container_port=8084
+                            container_port=args.metric_port
                         )
                     ],
                     volume_mounts=[
@@ -131,9 +127,7 @@ def serving(args, version):
             template=template
         )
     )
-    k8s_apps_v1.create_namespaced_deployment(body=deployment, namespace="kbj")
-    print("[+] Deployment created")
-
+    
     k8s_core_v1 = client.CoreV1Api()
     service = client.V1Service(
         api_version="v1",
@@ -151,24 +145,37 @@ def serving(args, version):
             ports=[
                 client.V1ServicePort(
                     name="preds",
-                    port=8082,
+                    port=args.pred_port,
                     target_port="ts"
                 ),
                 client.V1ServicePort(
                     name="mdl",
-                    port=8083,
+                    port=args.manage_port,
                     target_port="ts-management"
                 ),
                 client.V1ServicePort(
                     name="metrics",
-                    port=8084,
+                    port=args.metric_port,
                     target_port="ts-metrics"
                 )
             ]
         )
     )
-    k8s_core_v1.create_namespaced_service(body=service, namespace="kbj")
-    print("[+] Service created")
+
+    try:
+        k8s_apps_v1.create_namespaced_deployment(body=deployment, namespace="kbj")
+        print("[+] Deployment created")
+        k8s_core_v1.create_namespaced_service(body=service, namespace="kbj")
+        print("[+] Service created")
+        #portforward
+
+    except Exception as ex:
+        #check url
+        print(ex)
+    
+    cmd= 'curl -v -X POST "http://torchserve:{}/models?model_name={}&url={}.mar"'.format(args.manage_port, args.model_name, model_name_version+".mar")
+    print(cmd)
+    os.system(cmd)
 
 def main(args):
     now = datetime.now()
@@ -180,7 +187,6 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('--model_name', type=str, default="embedding")
-    # parser.add_argument('--version', type=str, default="1.0")
     
     parser.add_argument('--model_dir', type=str, default='/model')
     parser.add_argument('--model_file', type=str, default='model.pt')
@@ -193,6 +199,10 @@ if __name__ == "__main__":
 
     parser.add_argument('--export_path', type=str, default='/deploy-model/model-store')
     parser.add_argument('--config_path', type=str, default='/deploy-model/config')
+
+    parser.add_argument('--pred_port', type=int, default=8082)
+    parser.add_argument('--manage_port', type=int, default=8083)
+    parser.add_argument('--metric_port', type=int, default=8084)
 
     args = parser.parse_args()
 
