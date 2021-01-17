@@ -38,7 +38,7 @@ def archive(args, version):
     management_address=http://0.0.0.0:{}
     metrics_address=http://0.0.0.0:{}
     job_queue_size=100
-    load_models=standalone""".format(args.pred_port, args.manage_port, args.metric_port)
+    load_models=all""".format(args.pred_port, args.manage_port, args.metric_port)
 
     config_file = os.path.join(args.config_path, "config.properties")
 
@@ -167,21 +167,22 @@ def serving(args, version):
     try:
         k8s_apps_v1.create_namespaced_deployment(body=deployment, namespace="kbj")
         print("[+] Deployment created")
+    except:
+        k8s_apps_v1.replace_namespaced_deployment(name="torchserve", namespace="kbj", body=deployment)
+        print("[+] Deployment replaced")
+
+    try:
         k8s_core_v1.create_namespaced_service(body=service, namespace="kbj")
         print("[+] Service created")
-        #portforward
-
-    except Exception as ex:
-        #check url
-        print("========================")
-        print(ex)
-        print("========================")
+    except:
+        print("[+] Service already created")
+        
     
     # cmd= 'curl -v -X POST "http://torchserve:{}/models?model_name={}&url={}.mar"'.format(args.manage_port, args.model_name, model_name_version)
     
-    url = "http://torchserve:{}/models?model_name={}&url={}.mar".format(args.manage_port, args.model_name, model_name_version)
-    res = requests.post(url)
-    print(res.text)
+    # url = "http://torchserve:{}/models?model_name={}&url={}.mar".format(args.manage_port, args.model_name, model_name_version)
+    # res = requests.post(url)
+    # print(res.text)
 
 def main(args):
     now = datetime.now()
