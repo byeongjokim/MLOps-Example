@@ -72,7 +72,7 @@ if __name__=="__main__":
     
     pipeline_name = "Mnist"
     pipeline_package_path = "pipeline.zip"
-    version = "v0.2"
+    version = "v0.1"
 
     experiment_name = "For Develop"
     run_name = "serving version {}".format(version)
@@ -80,7 +80,7 @@ if __name__=="__main__":
     client = kfp.Client(host=host, namespace=namespace)
     kfp.compiler.Compiler().compile(mnist_pipeline, pipeline_package_path)
 
-    pipeline_id = client.get_pipeline_id("Mnist")
+    pipeline_id = client.get_pipeline_id(pipeline_name)
     if pipeline_id:
         client.upload_pipeline_version(pipeline_package_path=pipeline_package_path, pipeline_version_name=version, pipeline_name=pipeline_name)
     else:
