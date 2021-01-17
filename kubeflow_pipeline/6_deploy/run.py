@@ -173,12 +173,14 @@ def serving(args, version):
 
     except Exception as ex:
         #check url
+        print("========================")
         print(ex)
+        print("========================")
     
     # cmd= 'curl -v -X POST "http://torchserve:{}/models?model_name={}&url={}.mar"'.format(args.manage_port, args.model_name, model_name_version)
     
     url = "http://torchserve:{}/models?model_name={}&url={}.mar".format(args.manage_port, args.model_name, model_name_version)
-    res = requests.post(URL)
+    res = requests.post(url)
     print(res.text)
 
 def main(args):
