@@ -45,6 +45,7 @@ def archive(args, version):
         f.write(config)
 
 def serving(args, version):
+    model_name_version = args.model_name+"_"+version
     config.load_incluster_config()
 
     k8s_apps_v1 = client.AppsV1Api()
