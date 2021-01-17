@@ -4,6 +4,25 @@ from datetime import datetime
 from kubernetes import client, config
 import yaml
 import requests
+from glob import glob
+
+def management_model_store(path, prefix, max_num_models):
+    backup_foldername = "backup"
+    backup_path = os.path.join(path, backup_foldername)
+
+    if not os.path.isdir(backup_path):
+        os.mkdir(backup_path)
+        print('[+] Mkdir backup path:', backup_path)
+    
+    mar_files = glob(os.path.join(path, "{}*.mar".format(prefix)))
+    mar_files.sort()
+
+    mar_files = mar_files[:-1*max_num_models]
+
+    cmd = "mv {} {}".format(" ".join(mar_files), backup_path)
+    print(cmd)
+    os.system(cmd)
+
 
 def archive(args, version):
     model_name_version = args.model_name+"_"+version
@@ -29,6 +48,8 @@ def archive(args, version):
     cmd += "-f"
     print(cmd)
     os.system(cmd)
+
+    management_model_store(args.export_path, args.model_name, args.max_num_models)
 
     if not os.path.isdir(args.config_path):
         os.mkdir(args.config_path)
@@ -140,8 +161,7 @@ def serving(args, version):
         metadata=client.V1ObjectMeta(
             name="torchserve",
             labels={
-                "app":"torchserve",
-                "app.kubernetes.io/version":version
+                "app":"torchserve"
             }
         ),
         spec=client.V1ServiceSpec(
@@ -210,10 +230,14 @@ if __name__ == "__main__":
     parser.add_argument('--export_path', type=str, default='/deploy-model/model-store')
     parser.add_argument('--config_path', type=str, default='/deploy-model/config')
 
+    parser.add_argument('--max_num_models', type=int, default=3)
+
     parser.add_argument('--pred_port', type=int, default=8082)
     parser.add_argument('--manage_port', type=int, default=8083)
     parser.add_argument('--metric_port', type=int, default=8084)
 
+    parser.add_argument('--deploy_name', type=str, default="torchserve")
+    parser.add_argument('--svc_name', type=str, default="torchserve")
     parser.add_argument('--namespace', type=str, default="default")
 
     args = parser.parse_args()
