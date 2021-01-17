@@ -52,7 +52,10 @@ def serving(args, version):
     k8s_apps_v1 = client.AppsV1Api()
     template = client.V1PodTemplateSpec(
         metadata=client.V1ObjectMeta(
-            labels={"app":"torchserve"}
+            labels={
+                "app":"torchserve",
+                "app.kubernetes.io/version":version
+            }
         ),
         spec=client.V1PodSpec(
             volumes=[
@@ -165,14 +168,14 @@ def serving(args, version):
     )
 
     try:
-        k8s_apps_v1.create_namespaced_deployment(body=deployment, namespace="kbj")
+        k8s_apps_v1.create_namespaced_deployment(body=deployment, namespace=args.namespace)
         print("[+] Deployment created")
     except:
-        k8s_apps_v1.replace_namespaced_deployment(name="torchserve", namespace="kbj", body=deployment)
+        k8s_apps_v1.replace_namespaced_deployment(name="torchserve", namespace=args.namespace, body=deployment)
         print("[+] Deployment replaced")
 
     try:
-        k8s_core_v1.create_namespaced_service(body=service, namespace="kbj")
+        k8s_core_v1.create_namespaced_service(body=service, namespace=args.namespace)
         print("[+] Service created")
     except:
         print("[+] Service already created")
@@ -210,6 +213,8 @@ if __name__ == "__main__":
     parser.add_argument('--pred_port', type=int, default=8082)
     parser.add_argument('--manage_port', type=int, default=8083)
     parser.add_argument('--metric_port', type=int, default=8084)
+
+    parser.add_argument('--namespace', type=str, default="default")
 
     args = parser.parse_args()
 
