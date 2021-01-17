@@ -72,10 +72,10 @@ if __name__=="__main__":
     
     pipeline_name = "Mnist"
     pipeline_package_path = "pipeline.zip"
-    version = "v0.1"
+    version = "v0.2"
 
     experiment_name = "For Develop"
-    run_name = "serving version 0.1"
+    run_name = "serving version 0.2"
 
     client = kfp.Client(host=host, namespace=namespace)
     kfp.compiler.Compiler().compile(mnist_pipeline, pipeline_package_path)
