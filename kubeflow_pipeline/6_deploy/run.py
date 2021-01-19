@@ -31,7 +31,7 @@ def archive(args, version):
         os.mkdir(args.export_path)
         print('[+] Mkdir export path:', args.export_path)
     
-    # cmd = "torch-model-archiver --model-name embedding --version 1.0 --serialized-file model.pt --extra-files MyHandler.py,faiss_index.bin,faiss_label.json --handler handler.py"
+    # cmd = "torch-model-archiver --model-name embedding --version 1.0 --serialized-file model.pt --extra-files MyHandler.py,faiss_index.bin,faiss_label.json --handler handler.py --requirements-file requirements.txt"
     cmd = "torch-model-archiver "
     cmd += "--model-name {} ".format(model_name_version)
     cmd += "--version {} ".format(version)
@@ -45,6 +45,7 @@ def archive(args, version):
     cmd += "--extra-files {} ".format(",".join(extra_files))
     cmd += "--handler {} ".format(args.handler)
     cmd += "--export-path {} ".format(args.export_path)
+    cmd += "--requirements-file {} ".format(args.requirements)
     cmd += "-f"
     print(cmd)
     os.system(cmd)
@@ -59,6 +60,7 @@ def archive(args, version):
     management_address=http://0.0.0.0:{}
     metrics_address=http://0.0.0.0:{}
     job_queue_size=100
+    install_py_dep_per_model=true
     load_models=all""".format(args.pred_port, args.manage_port, args.metric_port)
 
     config_file = os.path.join(args.config_path, "config.properties")
@@ -90,7 +92,7 @@ def serving(args, version):
             containers=[
                 client.V1Container(
                     name="torchserve",
-                    image="byeongjokim/torchserve",
+                    image="pytorch/torchserve:0.3.0-cpu",
                     args=["torchserve", "--start",  "--model-store", "/home/model-server/shared/model-store/", "--ts-config", "/home/model-server/shared/config/config.properties"],
                     image_pull_policy="Always",
                     ports=[
@@ -222,6 +224,7 @@ if __name__ == "__main__":
     parser.add_argument('--model_file', type=str, default='model.pt')
     parser.add_argument('--faiss_model_file', type=str, default='faiss_index.bin')
     parser.add_argument('--faiss_label_file', type=str, default='faiss_label.json')
+    parser.add_argument('--requirements', type=str, default='requirements.txt')
 
     parser.add_argument('--handler_class', type=str, default="MyHandler.py")
     
