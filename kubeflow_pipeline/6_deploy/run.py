@@ -6,6 +6,15 @@ import yaml
 import requests
 from glob import glob
 
+def send_manage(text, text2):
+    manage_url = os.getenv('MANAGE_URL')
+
+    data = {"text": text, "text2": text2}
+    try:
+        requests.post(manage_url, data=data)
+    except:
+        pass
+
 def management_model_store(path, prefix, max_num_models):
     backup_foldername = "backup"
     backup_path = os.path.join(path, backup_foldername)
@@ -22,7 +31,6 @@ def management_model_store(path, prefix, max_num_models):
     cmd = "mv {} {}".format(" ".join(mar_files), backup_path)
     print(cmd)
     os.system(cmd)
-
 
 def archive(args, version):
     model_name_version = args.model_name+"_"+version
@@ -201,10 +209,10 @@ def serving(args, version):
         print("[+] Service created")
     except:
         print("[+] Service already created")
-        
     
+    send_manage("Serving the Model!!!", "Served Model using torchserve in k8s!!!")
+
     # cmd= 'curl -v -X POST "http://torchserve:{}/models?model_name={}&url={}.mar"'.format(args.manage_port, args.model_name, model_name_version)
-    
     # url = "http://torchserve:{}/models?model_name={}&url={}.mar".format(args.manage_port, args.model_name, model_name_version)
     # res = requests.post(url)
     # print(res.text)

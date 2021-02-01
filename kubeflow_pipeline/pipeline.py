@@ -5,12 +5,15 @@ import kfp.components as comp
 from kfp import dsl
 from kfp import onprem
 from kubernetes import client as k8s_client
+from kubernetes.client.models import V1EnvVar
 
 @dsl.pipeline(
     name="mnist using arcface",
     description="CT pipeline"
 )
 def mnist_pipeline():
+    ENV_MANAGE_URL = V1EnvVar(name='MANAGE_URL', value='http://220.116.228.93:8088/send')
+
     data_0 = dsl.ContainerOp(
         name="load & preprocess data pipeline",
         image="byeongjokim/mnist-pre-data:latest",
@@ -53,7 +56,7 @@ def mnist_pipeline():
             "accuracy": "/accuracy.json",
             "mlpipeline_metrics": "/mlpipeline-metrics.json"
         }
-    ).set_display_name('analysis').after(train_faiss)\
+    ).add_env_variable(ENV_MANAGE_URL).set_display_name('analysis').after(train_faiss)\
     .apply(onprem.mount_pvc("data-pvc", volume_name="data", volume_mount_path="/data"))\
     .apply(onprem.mount_pvc("train-model-pvc", volume_name="train-model", volume_mount_path="/model"))
 
@@ -62,7 +65,7 @@ def mnist_pipeline():
         deploy = dsl.ContainerOp(
             name="deploy mar",
             image="byeongjokim/mnist-deploy:latest",
-        ).set_display_name('deploy').after(analysis)\
+        ).add_env_variable(ENV_MANAGE_URL).set_display_name('deploy').after(analysis)\
         .apply(onprem.mount_pvc("train-model-pvc", volume_name="train-model", volume_mount_path="/model"))\
         .apply(onprem.mount_pvc("deploy-model-pvc", volume_name="deploy-model", volume_mount_path="/deploy-model"))
 

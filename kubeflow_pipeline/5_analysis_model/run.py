@@ -4,6 +4,7 @@ import argparse
 import ujson
 import glob
 import time
+import requests
 
 import torch
 import faiss
@@ -20,6 +21,17 @@ def load_nn_model(faiss_model_path, faiss_label_path):
         face_label = ujson.load(l)
     
     return face_index, np.asarray(face_label)
+
+def send_manage(accuracy):
+    text = "Result of the Model!!!"
+    text2 = "Accuracy for trained model is {}".format(str(accuracy))
+    manage_url = os.getenv('MANAGE_URL')
+
+    data = {"text": text, "text2": text2}
+    try:
+        requests.post(manage_url, data=data)
+    except:
+        pass
 
 def save_cm(results, num_classes):
     labels = [i for i in range(num_classes)]
@@ -63,6 +75,8 @@ def save_cm(results, num_classes):
         ujson.dump(metadata, f)
 
     accuracy = accuracy_score(results["labels"], results["predicts"])
+    send_manage(accuracy)
+
     metrics = {
         'metrics': [{
             'name': 'accuracy-score',
@@ -75,7 +89,6 @@ def save_cm(results, num_classes):
         ujson.dump(accuracy, f)
     with open('/mlpipeline-metrics.json', 'w') as f:
         ujson.dump(metrics, f)
-
 
 def main(args):
     analysis_dataset = MnistDataset(args.test_data_path, num_classes=args.class_nums, shape=(args.image_width, args.image_height))
